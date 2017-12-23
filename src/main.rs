@@ -8,6 +8,7 @@ extern crate hyper_tls;
 extern crate tokio_core;
 extern crate config;
 
+use std::env;
 use std::fmt;
 mod contract;
 use iron::prelude::*;
@@ -16,22 +17,33 @@ use hyper::Client;
 use hyper_tls::HttpsConnector;
 use tokio_core::reactor::Core;
 
-const TOKEN: &str = "";
+#[derive(Debug, Clone, Deserialize)]
+struct Settings {
+    address: String
+}
 
 fn main() {
     let mut settings = config::Config::default();
     settings.merge(config::File::with_name("Settings")).unwrap();
-    //let chain = Chain::new(web_hook);
-    //Iron::new(chain).http("127.0.0.1:62800").unwrap();
+    let settings = settings.try_into::<Settings>().unwrap();
+
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 2 {
+        panic!("Expected bot token as parameter, but found {} parameters!", args.len() - 1);
+    }
+
+    let bot_token = args[1].clone();
+    let chain = Chain::new(move |r: &mut Request| web_hook(r, &bot_token));
+    Iron::new(chain).http(settings.address).unwrap();
 }
 
-fn web_hook(request: &mut Request) -> IronResult<Response> {
+fn web_hook(request: &mut Request, bot_token: &String) -> IronResult<Response> {
     let update = request.get::<bodyparser::Struct<Update>>();
     match update {
         Ok(Some(update)) => {
-            let update : Update = update;
+            let update: Update = update;
             let chat_id = update.message.chat.id;
-            let url = format!("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}", TOKEN, chat_id, "Hello from bot!");
+            let url = format!("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}", bot_token, chat_id, "Hello from bot!");
             let mut core = Core::new().unwrap();
             let handle = core.handle();
             let client = Client::configure()
