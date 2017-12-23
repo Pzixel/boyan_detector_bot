@@ -2,14 +2,15 @@
 name = "boyan_detector_bot"
 version = "0.1.0"
 authors = ["Psilon <pzixel@gmail.com>"]
+build = "build.rs"
 
 [dependencies]
 iron = "*"
 bodyparser = "*"
-persistent = "*"
 serde_derive = "*"
 serde = "*"
 serde_json = "*"
 hyper = "0.11"
 hyper-tls = "0.1"
 tokio-core = "0.1"
+config = "0.7"

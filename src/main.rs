@@ -1,12 +1,12 @@
 extern crate iron;
 extern crate bodyparser;
-extern crate persistent;
 #[macro_use] extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate hyper;
 extern crate hyper_tls;
 extern crate tokio_core;
+extern crate config;
 
 use std::fmt;
 mod contract;
@@ -19,8 +19,10 @@ use tokio_core::reactor::Core;
 const TOKEN: &str = "";
 
 fn main() {
-    let chain = Chain::new(web_hook);
-    Iron::new(chain).http("127.0.0.1:62800").unwrap();
+    let mut settings = config::Config::default();
+    settings.merge(config::File::with_name("Settings")).unwrap();
+    //let chain = Chain::new(web_hook);
+    //Iron::new(chain).http("127.0.0.1:62800").unwrap();
 }
 
 fn web_hook(request: &mut Request) -> IronResult<Response> {
