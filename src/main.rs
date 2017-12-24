@@ -8,14 +8,14 @@ extern crate hyper_tls;
 extern crate tokio_core;
 extern crate config;
 
+mod contract;
+mod telegram_client;
+
 use std::env;
 use std::fmt;
-mod contract;
 use iron::prelude::*;
 use contract::*;
-use hyper::Client;
-use hyper_tls::HttpsConnector;
-use tokio_core::reactor::Core;
+use telegram_client::*;
 
 #[derive(Debug, Clone, Deserialize)]
 struct Settings {
@@ -43,14 +43,8 @@ fn web_hook(request: &mut Request, bot_token: &String) -> IronResult<Response> {
         Ok(Some(update)) => {
             let update: Update = update;
             let chat_id = update.message.chat.id;
-            let url = format!("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}", bot_token, chat_id, "Hello from bot!");
-            let mut core = Core::new().unwrap();
-            let handle = core.handle();
-            let client = Client::configure()
-                .connector(HttpsConnector::new(4, &handle).unwrap())
-                .build(&handle);
-            let request = client.request(hyper::Request::new(hyper::Method::Get, url.parse().unwrap()));
-            core.run(request).unwrap();
+            let mut client = TelegramClient::new(bot_token);
+            client.send_message(chat_id, "Hello from bot!").unwrap();
             Ok(Response::with((iron::status::Ok)))
         },
         Ok(None) => {
