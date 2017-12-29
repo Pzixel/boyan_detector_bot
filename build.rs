@@ -4,14 +4,14 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 const SETTINGS_FILE : &str = "Settings.toml";
-const LOG4RS_File : &str = "log4rs.toml";
+const LOG4RS_FILE : &str = "log4rs.toml";
 const TARGET_FILE : &str = "boyan_detector_bot.exe";
 
 fn main() {
     let current_dir = env::current_dir().unwrap();
     if let Ok(Some(target_dir_path)) = get_exe_dir(&current_dir) {
         copy(&target_dir_path, SETTINGS_FILE);
-        copy(&target_dir_path, LOG4RS_File);
+        copy(&target_dir_path, LOG4RS_FILE);
     }
 }
 

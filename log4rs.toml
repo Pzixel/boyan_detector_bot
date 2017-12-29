@@ -6,7 +6,11 @@ refresh_rate = "30 seconds"
   kind = "console"
 
 [root]
-level = "debug"
+level = "warn"
 appenders = [
   "stdout"
 ]
+
+[loggers]
+  [loggers.boyan_detector_bot]
+  level = "debug"
