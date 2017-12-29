@@ -2,3 +2,4 @@
 /cmake-build-debug/
 **/*.rs.bk
 *.lock
+/storage/

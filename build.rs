@@ -4,13 +4,14 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 const SETTINGS_FILE : &str = "Settings.toml";
+const LOG4RS_File : &str = "log4rs.toml";
 const TARGET_FILE : &str = "boyan_detector_bot.exe";
 
 fn main() {
     let current_dir = env::current_dir().unwrap();
-    if let Ok(Some(path)) = get_exe_dir(&current_dir) {
-        let dest_path = Path::new(&path).join(SETTINGS_FILE);
-        fs::copy(SETTINGS_FILE, dest_path).unwrap();
+    if let Ok(Some(target_dir_path)) = get_exe_dir(&current_dir) {
+        copy(&target_dir_path, SETTINGS_FILE);
+        copy(&target_dir_path, LOG4RS_File);
     }
 }
 
@@ -31,4 +32,8 @@ fn get_exe_dir(dir: &PathBuf) -> io::Result<Option<PathBuf>> {
         }
     }
     Ok(None)
+}
+
+fn copy<S: AsRef<std::ffi::OsStr> + ?Sized, P: Copy + AsRef<Path>>(target_dir_path: &S, file_name: P) {
+    fs::copy(file_name, Path::new(&target_dir_path).join(file_name)).unwrap();
 }
