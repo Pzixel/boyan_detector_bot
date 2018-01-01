@@ -1,11 +1,10 @@
 #[derive(Debug, Clone, Deserialize)]
 pub struct Chat {
     pub id: i64,
-    #[serde(rename = "type")]
-    pub chat_type: String,
+    #[serde(rename = "type")] pub chat_type: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub username: Option<String>
+    pub username: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -14,7 +13,7 @@ pub struct Document {
     pub file_name: Option<String>,
     pub mime_type: Option<String>,
     pub thumb: Option<PhotoSize>,
-    pub file_size: Option<i64>
+    pub file_size: Option<i64>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -22,7 +21,7 @@ pub struct PhotoSize {
     pub file_id: String,
     pub file_size: Option<i64>,
     pub width: i64,
-    pub height: i64
+    pub height: i64,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -43,20 +42,20 @@ pub struct Message {
     pub date: i64,
     pub text: Option<String>,
     pub photo: Option<Vec<PhotoSize>>,
-    pub document: Option<Document>
+    pub document: Option<Document>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct File {
     pub file_id: String,
     pub file_size: Option<i64>,
-    pub file_path: Option<String>
+    pub file_path: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GetFileResponse {
     pub ok: bool,
-    pub result: File
+    pub result: File,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -64,4 +63,3 @@ pub struct Update {
     pub update_id: i64,
     pub message: Message,
 }
-
