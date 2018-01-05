@@ -24,7 +24,7 @@ use iron::prelude::*;
 use contract::*;
 use telegram_client::*;
 use std::borrow::{Borrow, Cow};
-use std::error::Error;
+use std::error::Error as ErrorTrait;
 use std::fs::File;
 use sha2::{Digest, Sha256};
 use itertools::Itertools;
@@ -62,28 +62,27 @@ fn main() {
 fn web_hook(request: &mut Request, bot_token: &String) -> IronResult<Response> {
     match core(request, bot_token) {
         Ok(_) => Ok(Response::with((iron::status::Ok))),
-        Err(message) => {
-            error!("Error while processing the request: {}", &message);
+        Err(error) => {
+            error!("Error while processing the request: {:?}", error);
+            let message = String::from(error.borrow().description());
             Err(iron::IronError::new(
-                BotError::new(message.clone()),
+                error,
                 (iron::status::InternalServerError, message),
             ))
         }
     }
 }
 
-fn core(request: &mut Request, bot_token: &String) -> Result<(), String> {
+fn core(request: &mut Request, bot_token: &String) -> Result<(), Box<ErrorTrait + Send>> {
     let update = request
-        .get::<bodyparser::Struct<Update>>()
-        .map_err(|err| String::from(err.description()))?;
+        .get::<bodyparser::Struct<Update>>()?;
     match update {
         Some(update) => {
             let update: Update = update;
             let chat_id = update.message.chat.id;
             let mut client = TelegramClient::new(bot_token);
             client
-                .send_message(chat_id, "Hello from bot!")
-                .map_err(|err| String::from(err.description()))?;
+                .send_message(chat_id, "Hello from bot!")?;
 
             if let Some(document) = update.message.document {
                 handle_document(&mut client, &document.file_id)?;
@@ -99,20 +98,18 @@ fn core(request: &mut Request, bot_token: &String) -> Result<(), String> {
         }
         _ => {
             const COULD_NOT_PARSE_UPDATE_MESSAGE: &str = "Could not parse update object";
-            Err(String::from(COULD_NOT_PARSE_UPDATE_MESSAGE))
+            Err(Box::new(BotError::new(COULD_NOT_PARSE_UPDATE_MESSAGE)).into())
         }
     }
 }
 
-fn handle_document(client: &mut TelegramClient, file_id: &str) -> Result<(), String> {
+fn handle_document(client: &mut TelegramClient, file_id: &str) -> Result<(), Box<ErrorTrait + Send>> {
     let file = client
-        .get_file(file_id)
-        .map_err(|err| String::from(err.description()))?;
+        .get_file(file_id)?;
     match file.file_path {
         Some(file_path) => {
             let file_bytes = client
-                .download_file(&file_path)
-                .map_err(|err| String::from(err.description()))?;
+                .download_file(&file_path)?;
             let mut hasher = Sha256::default();
             hasher.input(&file_bytes);
             let output = hasher.result();
@@ -126,13 +123,11 @@ fn handle_document(client: &mut TelegramClient, file_id: &str) -> Result<(), Str
                 "Processing file: {}. Resulting path: {:?}",
                 file_path, filename
             );
-            let mut file = File::create(Path::new(STORAGE_DIR_NAME).join(filename))
-                .map_err(|err| String::from(err.description()))?;
-            file.write_all(&file_bytes)
-                .map_err(|err| String::from(err.description()))?;
+            let mut file = File::create(Path::new(STORAGE_DIR_NAME).join(filename))?;
+            file.write_all(&file_bytes)?;
             Ok(())
         }
-        _ => Err(String::from("File contains no path!")),
+        _ => Err(Box::new(BotError::new("File contains no path!")).into()),
     }
 }
 
@@ -155,7 +150,7 @@ impl<'a> fmt::Display for BotError<'a> {
     }
 }
 
-impl<'a> std::error::Error for BotError<'a> {
+impl<'a> ErrorTrait for BotError<'a> {
     fn description(&self) -> &str {
         self.details.borrow()
     }
