@@ -64,16 +64,16 @@ fn web_hook(request: &mut Request, bot_token: &String) -> IronResult<Response> {
         Ok(_) => Ok(Response::with((iron::status::Ok))),
         Err(error) => {
             error!("Error while processing the request: {:?}", error);
-            let message = String::from(error.borrow().description());
-            Err(iron::IronError::new(
+            let message = String::from(error.description());
+            Err(IronError {
                 error,
-                (iron::status::InternalServerError, message),
-            ))
+                response: Response::with((iron::status::InternalServerError, message))
+            })
         }
     }
 }
 
-fn core(request: &mut Request, bot_token: &String) -> Result<(), Box<ErrorTrait + Send>> {
+fn core(request: &mut Request, bot_token: &String) -> Result<(), Box<ErrorTrait+Send+Sync>> {
     let update = request
         .get::<bodyparser::Struct<Update>>()?;
     match update {
@@ -103,7 +103,7 @@ fn core(request: &mut Request, bot_token: &String) -> Result<(), Box<ErrorTrait 
     }
 }
 
-fn handle_document(client: &mut TelegramClient, file_id: &str) -> Result<(), Box<ErrorTrait + Send>> {
+fn handle_document(client: &mut TelegramClient, file_id: &str) -> Result<(), Box<ErrorTrait+Send+Sync>> {
     let file = client
         .get_file(file_id)?;
     match file.file_path {
