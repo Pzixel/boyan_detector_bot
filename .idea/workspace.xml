@@ -12,14 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="faacfb90-b5f7-4fb2-8090-908bf8a9de29" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/rustfmt.toml" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/imagedb/tests/test.rs" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/build.rs" afterPath="$PROJECT_DIR$/build.rs" />
-      <change beforePath="$PROJECT_DIR$/src/contract.rs" afterPath="$PROJECT_DIR$/src/contract.rs" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" afterPath="$PROJECT_DIR$/src/main.rs" />
-      <change beforePath="$PROJECT_DIR$/src/telegram_client.rs" afterPath="$PROJECT_DIR$/src/telegram_client.rs" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -34,8 +29,8 @@
       <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Cargo.toml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="406">
-              <caret line="14" column="5" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="5" />
+            <state relative-caret-position="68">
+              <caret line="4" column="18" lean-forward="false" selection-start-line="4" selection-start-column="18" selection-end-line="4" selection-end-column="18" />
               <folding />
             </state>
           </provider>
@@ -44,42 +39,67 @@
       <file leaf-file-name="main.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="740">
-              <caret line="118" column="72" lean-forward="false" selection-start-line="118" selection-start-column="72" selection-end-line="118" selection-end-column="72" />
-              <folding>
-                <element signature="e#4794#4795#0" expanded="true" />
-                <element signature="e#4838#4839#0" expanded="true" />
-                <element signature="e#4923#4924#0" expanded="true" />
-                <element signature="e#4959#4960#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-core-0.1.11/src/reactor/mod.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6061">
-              <caret line="209" column="7" lean-forward="false" selection-start-line="209" selection-start-column="7" selection-end-line="209" selection-end-column="7" />
+            <state relative-caret-position="629">
+              <caret line="37" column="20" lean-forward="false" selection-start-line="37" selection-start-column="20" selection-end-line="37" selection-end-column="20" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Settings.toml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Settings.toml">
+      <file leaf-file-name="lib.rs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/imagedb/src/lib.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="27" lean-forward="false" selection-start-line="0" selection-start-column="27" selection-end-line="0" selection-end-column="27" />
+            <state relative-caret-position="357">
+              <caret line="21" column="1" lean-forward="true" selection-start-line="21" selection-start-column="1" selection-end-line="21" selection-end-column="1" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="telegram_client.rs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mat.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.cargo/git/checkouts/cv-rs-2ef8cae194ab26b5/4d29916/src/mat.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1207">
+              <caret line="71" column="11" lean-forward="false" selection-start-line="71" selection-start-column="11" selection-end-line="71" selection-end-column="11" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="descriptor_matcher.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.cargo/git/checkouts/cv-rs-2ef8cae194ab26b5/4d29916/src/features2d/descriptor_matcher.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1632">
+              <caret line="96" column="11" lean-forward="false" selection-start-line="96" selection-start-column="11" selection-end-line="96" selection-end-column="11" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/imagedb/tests/test.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="68">
+              <caret line="4" column="47" lean-forward="false" selection-start-line="4" selection-start-column="47" selection-end-line="4" selection-end-column="47" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/imagedb/Cargo.toml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="102">
+              <caret line="6" column="86" lean-forward="false" selection-start-line="6" selection-start-column="86" selection-end-line="6" selection-end-column="86" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="telegram_client.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/telegram_client.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1468">
+            <state relative-caret-position="850">
               <caret line="50" column="104" lean-forward="false" selection-start-line="50" selection-start-column="104" selection-end-line="50" selection-end-column="104" />
               <folding />
             </state>
@@ -91,16 +111,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="14" lean-forward="false" selection-start-line="0" selection-start-column="14" selection-end-line="0" selection-end-column="14" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="contract.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/contract.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="783">
-              <caret line="27" column="17" lean-forward="false" selection-start-line="27" selection-start-column="17" selection-end-line="27" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -132,6 +142,11 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -142,10 +157,13 @@
         <option value="$PROJECT_DIR$/Settings.toml" />
         <option value="$PROJECT_DIR$/build.rs" />
         <option value="$PROJECT_DIR$/src/contract.rs" />
-        <option value="$PROJECT_DIR$/Cargo.toml" />
         <option value="$PROJECT_DIR$/src/main.rs" />
         <option value="$PROJECT_DIR$/src/telegram_client.rs" />
         <option value="$PROJECT_DIR$/rustfmt.toml" />
+        <option value="$PROJECT_DIR$/Cargo.toml" />
+        <option value="$PROJECT_DIR$/imagedb/Cargo.toml" />
+        <option value="$PROJECT_DIR$/imagedb/tests/test.rs" />
+        <option value="$PROJECT_DIR$/imagedb/src/lib.rs" />
       </list>
     </option>
   </component>
@@ -189,7 +207,19 @@
             <path>
               <item name="boyan_detector_bot" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
               <item name="boyan_detector_bot" type="462c0819:PsiDirectoryNode" />
+              <item name="imagedb" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="boyan_detector_bot" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="boyan_detector_bot" type="462c0819:PsiDirectoryNode" />
+              <item name="imagedb" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="boyan_detector_bot" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="boyan_detector_bot" type="462c0819:PsiDirectoryNode" />
+              <item name="imagedb" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -200,7 +230,9 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="settings.editor.selected.configurable" value="org.rust.cargo.project.configurable.RustProjectConfigurable" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.folding" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/imagedb/Cargo.toml" />
+    <property name="SearchEverywhereHistoryKey" value="cargo&#9;ACTION&#9;ActivateCargoToolWindow" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -220,7 +252,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Cargo Command.Run boyan_detector_bot">
+  <component name="RunManager" selected="Cargo Command.Test it_works">
     <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" EXPLICIT_BUILD_TARGET_NAME="all">
       <envs />
     </configuration>
@@ -235,6 +267,14 @@
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
     </configuration>
+    <configuration name="Test it_works" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="channel" value="DEFAULT" />
+      <option name="command" value="test --package imagedb --test test it_works -- --exact" />
+      <option name="nocapture" value="true" />
+      <option name="backtrace" value="SHORT" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/imagedb" />
+      <envs />
+    </configuration>
     <configuration default="true" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="channel" value="DEFAULT" />
       <option name="command" value="run" />
@@ -242,14 +282,16 @@
       <option name="backtrace" value="SHORT" />
       <envs />
     </configuration>
-    <list size="3">
+    <list size="4">
       <item index="0" class="java.lang.String" itemvalue="Application.Build All" />
       <item index="1" class="java.lang.String" itemvalue="Application.boyan_detector_bot" />
       <item index="2" class="java.lang.String" itemvalue="Cargo Command.Run boyan_detector_bot" />
+      <item index="3" class="java.lang.String" itemvalue="Cargo Command.Test it_works" />
     </list>
     <recent_temporary>
-      <list size="1">
-        <item index="0" class="java.lang.String" itemvalue="Cargo Command.Run boyan_detector_bot" />
+      <list size="2">
+        <item index="0" class="java.lang.String" itemvalue="Cargo Command.Test it_works" />
+        <item index="1" class="java.lang.String" itemvalue="Cargo Command.Run boyan_detector_bot" />
       </list>
     </recent_temporary>
   </component>
@@ -277,46 +319,40 @@
       <workItem from="1514196249330" duration="45000" />
       <workItem from="1514196313405" duration="630000" />
       <workItem from="1514283800217" duration="7451000" />
+      <workItem from="1519982803529" duration="5000" />
+      <workItem from="1519984371538" duration="2933000" />
+      <workItem from="1519987601473" duration="2022000" />
+      <workItem from="1519990495170" duration="608000" />
+      <workItem from="1519991414440" duration="93000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="43013000" />
+    <option name="totallyTimeSpent" value="48674000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-12" y="-12" width="3864" height="2114" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cargo" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19937694" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Cargo" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1296875" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19957761" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39915523" sideWeight="0.50208336" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.34846884" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39896104" sideWeight="0.49791667" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cargo" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32987013" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19957761" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39915523" sideWeight="0.50208336" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34846884" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39896104" sideWeight="0.49791667" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -361,30 +397,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/modifier-0.1.0/src/lib.rs" />
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/response.rs" />
-    <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/libcore/result.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="202">
-          <caret line="258" column="4" lean-forward="false" selection-start-line="258" selection-start-column="4" selection-end-line="258" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/error.rs" />
-    <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/libstd/error.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="67" column="10" lean-forward="false" selection-start-line="67" selection-start-column="10" selection-end-line="67" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/libcore/fmt/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="568" column="10" lean-forward="false" selection-start-line="568" selection-start-column="10" selection-end-line="568" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Cargo.toml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -393,23 +405,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/request/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="899">
-          <caret line="31" column="11" lean-forward="false" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/request/mod.rs" />
     <entry file="file://$PROJECT_DIR$/src/main.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="464">
           <caret line="16" column="5" lean-forward="true" selection-start-line="16" selection-start-column="5" selection-end-line="16" selection-end-column="5" />
-          <folding>
-            <element signature="e#4794#4795#0" expanded="true" />
-            <element signature="e#4838#4839#0" expanded="true" />
-            <element signature="e#4923#4924#0" expanded="true" />
-            <element signature="e#4959#4960#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -421,13 +422,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.10.13/src/header/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4590">
-          <caret line="270" column="11" lean-forward="false" selection-start-line="270" selection-start-column="11" selection-end-line="270" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.10.13/src/header/mod.rs" />
     <entry file="file://$PROJECT_DIR$/src/contract.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="697">
@@ -439,22 +434,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="493">
           <caret line="29" column="19" lean-forward="false" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
-          <folding>
-            <element signature="e#4794#4795#0" expanded="true" />
-            <element signature="e#4838#4839#0" expanded="true" />
-            <element signature="e#4923#4924#0" expanded="true" />
-            <element signature="e#4959#4960#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.lock">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="158">
-          <caret line="16" column="17" lean-forward="true" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Cargo.lock" />
     <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/libstd/io/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="8687">
@@ -462,63 +446,15 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/middleware/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="389" column="0" lean-forward="false" selection-start-line="389" selection-start-column="0" selection-end-line="389" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/middleware/mod.rs" />
     <entry file="file://$PROJECT_DIR$/src/contract/mod.rs" />
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.10.13/src/client/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="205" column="5" lean-forward="true" selection-start-line="205" selection-start-column="5" selection-end-line="205" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.10.13/src/header/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="278" column="29" lean-forward="true" selection-start-line="278" selection-start-column="29" selection-end-line="278" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/request/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-544">
-          <caret line="31" column="11" lean-forward="false" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/proto/request.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="194">
-          <caret line="28" column="26" lean-forward="false" selection-start-line="28" selection-start-column="26" selection-end-line="28" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/method.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="9" lean-forward="false" selection-start-line="22" selection-start-column="9" selection-end-line="22" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/modifier-0.1.0/src/lib.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="10" lean-forward="false" selection-start-line="9" selection-start-column="10" selection-end-line="9" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/response.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="355">
-          <caret line="104" column="22" lean-forward="true" selection-start-line="104" selection-start-column="22" selection-end-line="104" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.10.13/src/client/mod.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.10.13/src/header/mod.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/request/mod.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/proto/request.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/method.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/modifier-0.1.0/src/lib.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/response.rs" />
     <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/libcore/result.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="202">
@@ -526,13 +462,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/error.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="202">
-          <caret line="38" column="11" lean-forward="false" selection-start-line="38" selection-start-column="11" selection-end-line="38" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/iron-0.6.0/src/error.rs" />
     <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/libstd/error.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="253">
@@ -587,13 +517,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/proto/response.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-671">
-          <caret line="13" column="11" lean-forward="false" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/proto/response.rs" />
     <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/liballoc/string.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
@@ -601,63 +525,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/proto/chunk.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="11" lean-forward="false" selection-start-line="6" selection-start-column="11" selection-end-line="6" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_json-1.0.8/src/de.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="1998" column="7" lean-forward="false" selection-start-line="1998" selection-start-column="7" selection-end-line="1998" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-core-0.1.11/src/reactor/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6061">
-          <caret line="209" column="7" lean-forward="false" selection-start-line="209" selection-start-column="7" selection-end-line="209" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/proto/chunk.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/serde_json-1.0.8/src/de.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-core-0.1.11/src/reactor/mod.rs" />
     <entry file="file://$PROJECT_DIR$/src/contract.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="783">
+        <state relative-caret-position="459">
           <caret line="27" column="17" lean-forward="false" selection-start-line="27" selection-start-column="17" selection-end-line="27" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/client/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="137" column="11" lean-forward="false" selection-start-line="137" selection-start-column="11" selection-end-line="137" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-0.1.17/src/future/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="526" column="48" lean-forward="false" selection-start-line="526" selection-start-column="14" selection-end-line="526" selection-end-column="48" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.11.9/src/client/mod.rs" />
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/futures-0.1.17/src/future/mod.rs" />
     <entry file="file://$PROJECT_DIR$/Settings.toml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="27" lean-forward="false" selection-start-line="0" selection-start-column="27" selection-end-line="0" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="406">
-          <caret line="14" column="5" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="5" />
           <folding />
         </state>
       </provider>
@@ -670,23 +553,74 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.rs">
+    <entry file="file://$PROJECT_DIR$/src/telegram_client.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="740">
-          <caret line="118" column="72" lean-forward="false" selection-start-line="118" selection-start-column="72" selection-end-line="118" selection-end-column="72" />
-          <folding>
-            <element signature="e#4794#4795#0" expanded="true" />
-            <element signature="e#4838#4839#0" expanded="true" />
-            <element signature="e#4923#4924#0" expanded="true" />
-            <element signature="e#4959#4960#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="850">
+          <caret line="50" column="104" lean-forward="false" selection-start-line="50" selection-start-column="104" selection-end-line="50" selection-end-column="104" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/telegram_client.rs">
+    <entry file="file://$PROJECT_DIR$/src/main.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1468">
-          <caret line="50" column="104" lean-forward="false" selection-start-line="50" selection-start-column="104" selection-end-line="50" selection-end-column="104" />
+        <state relative-caret-position="629">
+          <caret line="37" column="20" lean-forward="false" selection-start-line="37" selection-start-column="20" selection-end-line="37" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Cargo.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="18" lean-forward="false" selection-start-line="4" selection-start-column="18" selection-end-line="4" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/git/checkouts/cv-rs-2ef8cae194ab26b5/4d29916/src/features2d/descriptor_matcher.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1632">
+          <caret line="96" column="11" lean-forward="false" selection-start-line="96" selection-start-column="11" selection-end-line="96" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/git/checkouts/cv-rs-2ef8cae194ab26b5/4d29916/src/mat.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1207">
+          <caret line="71" column="11" lean-forward="false" selection-start-line="71" selection-start-column="11" selection-end-line="71" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/imagedb/Cargo.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="86" lean-forward="false" selection-start-line="6" selection-start-column="86" selection-end-line="6" selection-end-column="86" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/liballoc/borrow.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="31" column="7" lean-forward="false" selection-start-line="31" selection-start-column="7" selection-end-line="31" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/imagedb/tests/test.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="47" lean-forward="false" selection-start-line="4" selection-start-column="47" selection-end-line="4" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/imagedb/src/lib.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="357">
+          <caret line="21" column="1" lean-forward="true" selection-start-line="21" selection-start-column="1" selection-end-line="21" selection-end-column="1" />
           <folding />
         </state>
       </provider>
