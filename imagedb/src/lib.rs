@@ -20,6 +20,6 @@ impl InMemoryDatabase {
         let mat = cv::Mat::image_decode(image, ImageReadMode::Grayscale);
         let mask = Mat::new();
         let mser: SIFT = SIFTBuilder::default().into();
-        let (keypoints, descriptors) = mser.detect_and_compute(&mat, &mask);
+        let (_, descriptors) = mser.detect_and_compute(&mat, &mask);
     }
 }
