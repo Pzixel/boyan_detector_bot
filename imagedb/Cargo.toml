@@ -1,0 +1,7 @@
+[package]
+name = "imagedb"
+version = "0.1.0"
+authors = ["Psilon <pzixel@gmail.com>"]
+
+[dependencies]
+cv = { git = "https://github.com/nebgnahz/cv-rs.git" }
