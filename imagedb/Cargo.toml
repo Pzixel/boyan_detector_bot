@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["Psilon <pzixel@gmail.com>"]
 
 [dependencies]
-cv = { git = "https://github.com/Pzixel/cv-rs.git", branch = "feature/fix_as_dependenccy" }
+cv = { git = "https://github.com/nebgnahz/cv-rs.git" }
