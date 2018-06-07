@@ -32,18 +32,18 @@ impl Database for InMemoryDatabase {
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
-pub enum ImageVariant {
+pub enum ImageVariant<D: Clone> {
     New,
-    AlreadyExists
+    AlreadyExists(D)
 }
 
-pub struct Storage<T: Database> {
+pub struct Storage<T: Database, D: Clone> {
     database: T,
     hasher: PHash,
-    images: Vec<Mat>
+    images: Vec<(Mat, D)>
 }
 
-impl<T: Database> Storage<T> {
+impl<T: Database, D: Clone> Storage<T, D> {
     pub fn new(database: T) -> Self {
         Self {
             database,
@@ -53,24 +53,26 @@ impl<T: Database> Storage<T> {
     }
 }
 
-impl<T: Database> Storage<T> {
-    pub fn save_image_if_new(&mut self, image: &[u8]) -> ImageVariant {
+impl<T: Database, D: Clone> Storage<T, D> {
+    pub fn save_image_if_new(&mut self, image: &[u8], data: D) -> ImageVariant<D> {
         const DIFF: f64 = 0.5;
 
         let mat = Mat::image_decode(image, ImageReadMode::Grayscale);
-        let result = ImageVariant::New;
+        let mat = self.hasher.compute(&mat);
         let mut last_diff = std::f64::INFINITY;
-        for image in self.images.iter() {
+        let mut result: Option<D> = None;
+        for &(ref image, ref d) in self.images.iter() {
             let diff = self.hasher.compare(&mat, &image);
             if diff < last_diff {
                 last_diff = diff;
+                result = Some(d.clone());
             }
         }
         if last_diff < DIFF {
-            return ImageVariant::AlreadyExists;
+            return ImageVariant::AlreadyExists(result.unwrap());
         }
         self.database.save_image(image);
-        self.images.push(mat);
+        self.images.push((mat, data));
         ImageVariant::New
     }
 }
