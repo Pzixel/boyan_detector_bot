@@ -1,19 +1,39 @@
+#[macro_use]
+extern crate serde_derive;
+
+extern crate serde;
+extern crate serde_json;
 extern crate cv;
 
 use cv::*;
 use cv::imgcodecs::*;
-use cv::phash::*;
+use cv::hash::*;
 
-pub trait Database {
-    fn save_image(&mut self, image: &[u8]);
-    fn load_images(&self) -> Vec<Vec<u8>>;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Image<T: Clone> {
+    bytes: Vec<u8>,
+    metadata: T
 }
 
-pub struct InMemoryDatabase {
-    images: Vec<Vec<u8>>
+impl<T: Clone> Image<T> {
+    pub fn new(bytes: Vec<u8>, medatata: T) -> Self {
+        Self {
+            bytes: bytes,
+            metadata: medatata
+        }
+    }
 }
 
-impl InMemoryDatabase {
+pub trait Database<T: Clone> {
+    fn save_image(&mut self, image: &Image<T>);
+    fn load_images(&self) -> Vec<Image<T>>;
+}
+
+pub struct InMemoryDatabase<T: Clone> {
+    images: Vec<Image<T>>
+}
+
+impl<T: Clone> InMemoryDatabase<T> {
     pub fn new() -> Self {
         Self {
             images: Vec::new()
@@ -21,46 +41,55 @@ impl InMemoryDatabase {
     }
 }
 
-impl Database for InMemoryDatabase {
-    fn save_image(&mut self, image: &[u8]) {
-        self.images.push(image.into());
+impl<T: Clone> Database<T> for InMemoryDatabase<T> {
+    fn save_image(&mut self, image: &Image<T>) {
+        self.images.push(image.clone());
     }
 
-    fn load_images(&self) -> Vec<Vec<u8>> {
+    fn load_images(&self) -> Vec<Image<T>> {
         self.images.clone()
     }
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
-pub enum ImageVariant<D: Clone> {
+#[derive(Debug, Clone)]
+pub enum ImageVariant<T: Clone> {
     New,
-    AlreadyExists(D)
+    AlreadyExists(T)
 }
 
-pub struct Storage<T: Database, D: Clone> {
-    database: T,
-    hasher: PHash,
-    images: Vec<(Mat, D)>
+impl<T: Clone> ImageVariant<T> {
+    pub fn is_new(&self) -> bool {
+        match self {
+            ImageVariant::New => true,
+            _ => false
+        }
+    }
 }
 
-impl<T: Database, D: Clone> Storage<T, D> {
-    pub fn new(database: T) -> Self {
+pub struct Storage<T: Clone, D: Database<T>> {
+    database: D,
+    hasher: ColorMomentHash,
+    images: Vec<(Mat, Image<T>)>
+}
+
+impl<T: Clone, D: Database<T>> Storage<T, D> {
+    pub fn new(database: D) -> Self {
         Self {
             database,
-            hasher: PHash::new(),
+            hasher: ColorMomentHash::new(),
             images: Vec::new()
         }
     }
 }
 
-impl<T: Database, D: Clone> Storage<T, D> {
-    pub fn save_image_if_new(&mut self, image: &[u8], data: D) -> ImageVariant<D> {
-        const DIFF: f64 = 0.5;
+impl<T: Clone, D: Database<T>> Storage<T, D> {
+    pub fn save_image_if_new(&mut self, image: Image<T>) -> ImageVariant<Image<T>> {
+        const DIFF: f64 = 1.0;
 
-        let mat = Mat::image_decode(image, ImageReadMode::Grayscale);
+        let mat = Mat::image_decode(&image.bytes, ImageReadMode::Color);
         let mat = self.hasher.compute(&mat);
         let mut last_diff = std::f64::INFINITY;
-        let mut result: Option<D> = None;
+        let mut result: Option<Image<T>> = None;
         for &(ref image, ref d) in self.images.iter() {
             let diff = self.hasher.compare(&mat, &image);
             if diff < last_diff {
@@ -71,8 +100,8 @@ impl<T: Database, D: Clone> Storage<T, D> {
         if last_diff < DIFF {
             return ImageVariant::AlreadyExists(result.unwrap());
         }
-        self.database.save_image(image);
-        self.images.push((mat, data));
+        self.database.save_image(&image);
+        self.images.push((mat, image));
         ImageVariant::New
     }
 }
