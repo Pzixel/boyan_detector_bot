@@ -1,7 +1,8 @@
 #[derive(Debug, Clone, Deserialize)]
 pub struct Chat {
     pub id: i64,
-    #[serde(rename = "type")] pub chat_type: String,
+    #[serde(rename = "type")]
+    pub chat_type: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub username: Option<String>,

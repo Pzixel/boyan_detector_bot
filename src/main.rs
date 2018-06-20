@@ -18,18 +18,18 @@ extern crate tokio_core;
 mod contract;
 mod telegram_client;
 
-use std::env;
-use std::fmt;
-use iron::prelude::*;
 use contract::*;
-use telegram_client::*;
-use std::borrow::{Borrow, Cow};
-use std::error::Error as ErrorTrait;
-use std::fs::File;
-use sha2::{Digest, Sha256};
+use iron::prelude::*;
 use itertools::Itertools;
-use std::path::Path;
+use sha2::{Digest, Sha256};
+use std::borrow::{Borrow, Cow};
+use std::env;
+use std::error::Error as ErrorTrait;
+use std::fmt;
+use std::fs::File;
 use std::io::Write;
+use std::path::Path;
+use telegram_client::*;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
@@ -67,22 +67,20 @@ fn web_hook(request: &mut Request, bot_token: &String) -> IronResult<Response> {
             let message = String::from(error.description());
             Err(IronError {
                 error,
-                response: Response::with((iron::status::InternalServerError, message))
+                response: Response::with((iron::status::InternalServerError, message)),
             })
         }
     }
 }
 
-fn core(request: &mut Request, bot_token: &String) -> Result<(), Box<ErrorTrait+Send+Sync>> {
-    let update = request
-        .get::<bodyparser::Struct<Update>>()?;
+fn core(request: &mut Request, bot_token: &String) -> Result<(), Box<ErrorTrait + Send + Sync>> {
+    let update = request.get::<bodyparser::Struct<Update>>()?;
     match update {
         Some(update) => {
             let update: Update = update;
             let chat_id = update.message.chat.id;
             let mut client = TelegramClient::new(bot_token);
-            client
-                .send_message(chat_id, "Hello from bot!")?;
+            client.send_message(chat_id, "Hello from bot!")?;
 
             if let Some(document) = update.message.document {
                 handle_document(&mut client, &document.file_id)?;
@@ -103,13 +101,11 @@ fn core(request: &mut Request, bot_token: &String) -> Result<(), Box<ErrorTrait+
     }
 }
 
-fn handle_document(client: &mut TelegramClient, file_id: &str) -> Result<(), Box<ErrorTrait+Send+Sync>> {
-    let file = client
-        .get_file(file_id)?;
+fn handle_document(client: &mut TelegramClient, file_id: &str) -> Result<(), Box<ErrorTrait + Send + Sync>> {
+    let file = client.get_file(file_id)?;
     match file.file_path {
         Some(file_path) => {
-            let file_bytes = client
-                .download_file(&file_path)?;
+            let file_bytes = client.download_file(&file_path)?;
             let mut hasher = Sha256::default();
             hasher.input(&file_bytes);
             let output = hasher.result();
@@ -119,10 +115,7 @@ fn handle_document(client: &mut TelegramClient, file_id: &str) -> Result<(), Box
                 Some(extension) => filename.with_extension(extension),
                 _ => filename.to_path_buf(),
             };
-            debug!(
-                "Processing file: {}. Resulting path: {:?}",
-                file_path, filename
-            );
+            debug!("Processing file: {}. Resulting path: {:?}", file_path, filename);
             let mut file = File::create(Path::new(STORAGE_DIR_NAME).join(filename))?;
             file.write_all(&file_bytes)?;
             Ok(())
@@ -138,9 +131,7 @@ struct BotError<'a> {
 
 impl<'a> BotError<'a> {
     fn new<S: Into<Cow<'a, str>>>(msg: S) -> BotError<'a> {
-        BotError {
-            details: msg.into(),
-        }
+        BotError { details: msg.into() }
     }
 }
 

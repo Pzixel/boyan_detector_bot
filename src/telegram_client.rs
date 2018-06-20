@@ -1,16 +1,16 @@
-use hyper;
-use hyper::{Client, Method, Request};
-use hyper::client::HttpConnector;
-use hyper_tls::HttpsConnector;
-use tokio_core::reactor::Core;
-use serde;
 use contract::*;
-use std::io;
-use futures::{Future, Stream};
-use serde_json;
-use futures::IntoFuture;
 use futures;
+use futures::IntoFuture;
+use futures::{Future, Stream};
+use hyper;
+use hyper::client::HttpConnector;
+use hyper::{Client, Method, Request};
+use hyper_tls::HttpsConnector;
+use serde;
+use serde_json;
 use std;
+use std::io;
+use tokio_core::reactor::Core;
 
 pub struct TelegramClient<'a> {
     token: &'a String,
@@ -25,18 +25,11 @@ impl<'a> TelegramClient<'a> {
         let client = Client::configure()
             .connector(HttpsConnector::new(4, &handle).unwrap())
             .build(&handle);
-        TelegramClient {
-            token,
-            client,
-            core,
-        }
+        TelegramClient { token, client, core }
     }
 
     pub fn send_message(&mut self, chat_id: i64, text: &str) -> serde::export::Result<hyper::Response, hyper::Error> {
-        let url = format!(
-            "bot{}/sendMessage?chat_id={}&text={}",
-            self.token, chat_id, text
-        );
+        let url = format!("bot{}/sendMessage?chat_id={}&text={}", self.token, chat_id, text);
         self.send(Method::Post, &url)
     }
 
