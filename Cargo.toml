@@ -5,17 +5,12 @@ authors = ["Psilon <pzixel@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
-iron = "*"
-bodyparser = "*"
-serde_derive = "*"
-serde = "*"
-serde_json = "*"
-hyper = "0.11"
-hyper-tls = "0.1"
-tokio-core = "0.1"
-config = "0.7"
-futures = "*"
-sha2 = "0.7"
-itertools = "0.7"
+futures = "0.1.21"
+hyper = "0.12"
+hyper-tls = "0.2"
 log = "0.4"
-log4rs = { version = "0.4", features = ["toml"] }
+log4rs = { version = "0.8", features = ["toml"] }
+serde = "1"
+serde_derive = "1"
+serde_json = "1"
+sha2 = "0.7"
