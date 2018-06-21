@@ -2,6 +2,7 @@
 name = "boyan_detector_bot"
 version = "0.1.0"
 authors = ["Psilon <pzixel@gmail.com>"]
+build = "build.rs"
 
 [dependencies]
 bytes = "*"
