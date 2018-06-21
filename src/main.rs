@@ -1,4 +1,5 @@
 extern crate futures;
+extern crate http;
 extern crate hyper;
 extern crate hyper_tls;
 extern crate log4rs;
@@ -13,5 +14,4 @@ mod telegram_client;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
-fn main() {
-}
+fn main() {}
