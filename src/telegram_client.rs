@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use futures::Future;
 use futures::Stream;
 use http::Error;
@@ -8,13 +9,13 @@ use hyper::Body;
 use hyper::{Client, Method, Request};
 use hyper_tls::HttpsConnector;
 
-pub struct TelegramClient<'a> {
-    token: &'a String,
+pub struct TelegramClient {
+    token: String,
     client: Client<HttpsConnector<HttpConnector>, hyper::Body>,
 }
 
-impl<'a> TelegramClient<'a> {
-    pub fn new(token: &'a String, handle: &()) -> Self {
+impl TelegramClient {
+    pub fn new(token: String, handle: &()) -> Self {
         let https = HttpsConnector::new(4).unwrap();
         let client: Client<_, Body> = Client::builder().build(https);
         TelegramClient { token, client }
@@ -25,10 +26,16 @@ impl<'a> TelegramClient<'a> {
         self.send(Method::POST, &url)
     }
 
-    pub fn download_file(&mut self, file_path: &str) -> Result<Body, Error> {
+    pub fn download_file(&mut self, file_path: &str) -> Result<impl Future<Item = Bytes, Error = hyper::Error>, Error> {
         let url = format!("file/bot{}/{}", self.token, file_path);
-        self.send(Method::GET, &url)?
-            .map(|res| res.into_body().for_each(|x| x.into_bytes()))
+        let request = self.send(Method::GET, &url)?;
+        let mapped_request = request.and_then(|res| {
+            res.into_body()
+                .into_future()
+                .map(|(item, _)| item.unwrap().into_bytes())
+                .map_err(|(err, _)| err)
+        });
+        Ok(mapped_request)
     }
 
     fn send(&self, method: Method, url: &str) -> Result<ResponseFuture, Error> {
