@@ -15,6 +15,12 @@ mod contract;
 mod telegram_client;
 
 use clap::{App, Arg};
+use futures::future;
+use hyper::rt::{self, Future};
+use hyper::service::service_fn;
+use hyper::service::service_fn_ok;
+use hyper::{Body, Method, Request, Response, Server, StatusCode};
+use std::net::SocketAddr;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
@@ -45,5 +51,17 @@ fn main() {
 }
 
 fn run<'a, 'b>(bot_token: &'a str, listening_address: &'b str) {
-    println!("Hello {}, address is {}", bot_token, listening_address);
+    let addr: SocketAddr = listening_address.parse().unwrap();
+
+    let server = Server::bind(&addr)
+        .serve(|| service_fn(echo))
+        .map_err(|e| eprintln!("server error: {}", e));
+
+    println!("Listening on http://{}", addr);
+    hyper::rt::run(server);
+}
+
+fn echo(req: Request<Body>) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
+    let mut response = Response::new(Body::empty());
+    future::ok(response)
 }
