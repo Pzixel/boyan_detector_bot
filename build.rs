@@ -1,7 +1,5 @@
-use std::env;
-use std::fs;
-use std::io;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::{env, fs};
 
 const LOG4RS_FILE: &str = "log4rs.toml";
 
@@ -11,5 +9,5 @@ fn main() {
 }
 
 fn copy<S: AsRef<std::ffi::OsStr> + ?Sized, P: Copy + AsRef<Path>>(target_dir_path: &S, file_name: P) {
-    fs::copy(file_name, Path::new(&target_dir_path).join(file_name)).unwrap();
+    fs::copy(file_name, Path::new(&target_dir_path).join("../../..").join(file_name)).unwrap();
 }

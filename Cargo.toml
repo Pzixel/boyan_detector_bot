@@ -6,12 +6,13 @@ build = "build.rs"
 
 [dependencies]
 bytes = "*"
+clap = "2"
 futures = "0.1.21"
 http = "0.1"
 hyper = "0.12"
 hyper-tls = "0.2"
 log = "0.4"
-log4rs = { version = "0.8", features = ["toml"] }
+log4rs = { version = "0.8", features = ["toml_format"] }
 serde = "1"
 serde_derive = "1"
 serde_json = "1"
