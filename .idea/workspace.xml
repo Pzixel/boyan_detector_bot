@@ -12,10 +12,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="faacfb90-b5f7-4fb2-8090-908bf8a9de29" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.rs" beforeDir="false" afterPath="$PROJECT_DIR$/build.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/telegram_client.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/telegram_client.rs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -30,8 +29,8 @@
       <file leaf-file-name="main.rs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="33" column="19" lean-forward="true" selection-start-line="33" selection-start-column="19" selection-end-line="33" selection-end-column="19" />
+            <state relative-caret-position="446">
+              <caret line="61" column="1" lean-forward="true" selection-start-line="61" selection-start-column="1" selection-end-line="61" selection-end-column="1" />
             </state>
           </provider>
         </entry>
@@ -86,15 +85,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="3196">
               <caret line="188" column="11" selection-start-line="188" selection-start-column="11" selection-end-line="188" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="method.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/http-0.1.6/src/method.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="816">
-              <caret line="48" column="26" selection-start-line="48" selection-start-column="26" selection-end-line="48" selection-end-column="26" />
             </state>
           </provider>
         </entry>
@@ -251,7 +241,7 @@
     <configuration name="boyan_detector_bot" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="boyan_detector_bot" TARGET_NAME="boyan_detector_bot" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="boyan_detector_bot" RUN_TARGET_NAME="boyan_detector_bot" />
     <configuration name="Run boyan_detector_bot (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="channel" value="DEFAULT" />
-      <option name="command" value="run --package boyan_detector_bot --bin boyan_detector_bot -- --token x --address y" />
+      <option name="command" value="run --package boyan_detector_bot --bin boyan_detector_bot -- --token x --address 127.0.0.1:62800" />
       <option name="nocapture" value="true" />
       <option name="backtrace" value="SHORT" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -342,7 +332,7 @@
       <workItem from="1529606181032" duration="9000" />
       <workItem from="1529606235012" duration="2248000" />
       <workItem from="1529659048642" duration="57000" />
-      <workItem from="1529659539874" duration="1732000" />
+      <workItem from="1529659539874" duration="2984000" />
     </task>
     <task id="LOCAL-00001" summary="repair">
       <created>1527197590767</created>
@@ -379,14 +369,22 @@
       <option name="project" value="LOCAL" />
       <updated>1528406344421</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="arguments parsing">
+      <created>1529665148966</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1529665148966</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="86557000" />
+    <option name="totallyTimeSpent" value="87809000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-3847" y="-7" width="2208" height="1208" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2497721" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -420,14 +418,15 @@
     <MESSAGE value="asfasf" />
     <MESSAGE value="asdasdasd" />
     <MESSAGE value="test doesn't pass" />
-    <option name="LAST_COMMIT_MESSAGE" value="test doesn't pass" />
+    <MESSAGE value="arguments parsing" />
+    <option name="LAST_COMMIT_MESSAGE" value="arguments parsing" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/main.rs</url>
-          <line>21</line>
+          <line>27</line>
           <option name="timeStamp" value="33" />
         </line-breakpoint>
       </breakpoints>
@@ -464,13 +463,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-tls-0.2.1/src/client.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="35" column="11" selection-start-line="35" selection-start-column="11" selection-end-line="35" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Cargo.toml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -664,10 +656,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.12.2/src/server/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="245">
+          <caret line="230" column="18" lean-forward="true" selection-start-line="230" selection-start-column="18" selection-end-line="230" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="33" column="19" lean-forward="true" selection-start-line="33" selection-start-column="19" selection-end-line="33" selection-end-column="19" />
+        <state relative-caret-position="446">
+          <caret line="61" column="1" lean-forward="true" selection-start-line="61" selection-start-column="1" selection-end-line="61" selection-end-column="1" />
         </state>
       </provider>
     </entry>

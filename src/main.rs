@@ -5,6 +5,8 @@ extern crate http;
 extern crate hyper;
 extern crate hyper_tls;
 extern crate log4rs;
+#[macro_use]
+extern crate log;
 
 #[macro_use]
 extern crate serde_derive;
@@ -26,6 +28,8 @@ const STORAGE_DIR_NAME: &str = "storage";
 
 fn main() {
     log4rs::init_file("log4rs.toml", Default::default()).unwrap();
+    std::fs::create_dir_all(STORAGE_DIR_NAME).unwrap();
+
     let matches = App::new("BoyanDetectorBot")
         .arg(
             Arg::with_name("token")
@@ -55,9 +59,9 @@ fn run<'a, 'b>(bot_token: &'a str, listening_address: &'b str) {
 
     let server = Server::bind(&addr)
         .serve(|| service_fn(echo))
-        .map_err(|e| eprintln!("server error: {}", e));
+        .map_err(|e| error!("server error: {}", e));
 
-    println!("Listening on http://{}", addr);
+    debug!("Listening on http://{}", addr);
     hyper::rt::run(server);
 }
 
