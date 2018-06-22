@@ -1,3 +1,4 @@
+use bytes::Buf;
 use bytes::Bytes;
 use contract::File;
 use futures::future;
@@ -6,10 +7,9 @@ use futures::Stream;
 use hyper;
 use hyper::client::HttpConnector;
 use hyper::client::ResponseFuture;
-use hyper::Body;
-use hyper::{Client, Method, Request};
+use hyper::{Body, Chunk, Client, Method, Request};
 use hyper_tls::HttpsConnector;
-use serde_json::from_reader;
+use serde_json::from_slice;
 use serde_json::Error as SerdeError;
 
 #[derive(Debug, Fail)]
@@ -44,11 +44,13 @@ impl TelegramClient {
             .send(Method::GET, &url)
             .map_err(|e| TelegramClientError::HyperError(e))
             .and_then(|res| {
-                res.into_body().into_future().then(|result| {
+                let foo = res.into_body().into_future().then(|result| {
                     let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
                     let chunk = item.unwrap();
-                    from_reader(chunk.into()).map_err(|e| TelegramClientError::SerdeError(e))?
-                })
+                    let file: File = from_slice(chunk.bytes()).map_err(|e| TelegramClientError::SerdeError(e))?;
+                    Ok(file)
+                });
+                foo
             });
         result
     }
