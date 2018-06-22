@@ -63,7 +63,7 @@ fn main() {
     run(&bot_token, &address);
 }
 
-fn run<'a, 'b>(bot_token: &'a str, listening_address: &'b str) {
+fn run(bot_token: &str, listening_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
     let telegram = TelegramClient::new(bot_token.into());
 
@@ -85,7 +85,7 @@ fn echo(
 
         client
             .send_message(chat_id, "Hello from bot")
-            .then(|_| Response::new(Body::empty()))
+            .map(|_| Response::new(Body::empty()))
     });
     result
 }
