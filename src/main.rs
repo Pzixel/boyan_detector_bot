@@ -13,6 +13,9 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 
+#[macro_use]
+extern crate failure;
+
 mod contract;
 mod telegram_client;
 
@@ -27,6 +30,7 @@ use std::net::SocketAddr;
 const STORAGE_DIR_NAME: &str = "storage";
 
 fn main() {
+    return;
     log4rs::init_file("log4rs.toml", Default::default()).unwrap();
     std::fs::create_dir_all(STORAGE_DIR_NAME).unwrap();
 
@@ -61,8 +65,8 @@ fn run<'a, 'b>(bot_token: &'a str, listening_address: &'b str) {
         .serve(|| service_fn(echo))
         .map_err(|e| error!("server error: {}", e));
 
-    debug!("Listening on http://{}", addr);
-    hyper::rt::run(server);
+    info!("Listening on http://{}", addr);
+    rt::run(server);
 }
 
 fn echo(req: Request<Body>) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {

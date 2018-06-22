@@ -5,8 +5,9 @@ authors = ["Psilon <pzixel@gmail.com>"]
 build = "build.rs"
 
 [dependencies]
-bytes = "*"
+bytes = "0.4"
 clap = "2"
+failure = "0.1"
 futures = "0.1.21"
 http = "0.1"
 hyper = "0.12"
