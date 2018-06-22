@@ -44,13 +44,11 @@ impl TelegramClient {
             .send(Method::GET, &url)
             .map_err(|e| TelegramClientError::HyperError(e))
             .and_then(|res| {
-                let foo = res.into_body().into_future().then(|result| {
+                res.into_body().into_future().then(|result| {
                     let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
                     let chunk = item.unwrap();
-                    let file: File = from_slice(chunk.bytes()).map_err(|e| TelegramClientError::SerdeError(e))?;
-                    Ok(file)
-                });
-                foo
+                    from_slice(chunk.bytes()).map_err(|e| TelegramClientError::SerdeError(e))
+                })
             });
         result
     }
