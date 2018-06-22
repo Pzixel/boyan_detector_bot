@@ -47,7 +47,7 @@ impl TelegramClient {
                 res.into_body().into_future().then(|result| {
                     let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
                     let chunk = item.unwrap();
-                    from_slice(chunk.bytes()).map_err(|e| TelegramClientError::SerdeError(e))
+                    from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))
                 })
             });
         result

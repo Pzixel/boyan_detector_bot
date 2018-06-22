@@ -19,13 +19,18 @@ extern crate failure;
 mod contract;
 mod telegram_client;
 
+use bytes::Buf;
 use clap::{App, Arg};
+use contract::Update;
 use futures::future;
+use futures::Stream;
 use hyper::rt::{self, Future};
 use hyper::service::service_fn;
 use hyper::service::service_fn_ok;
 use hyper::{Body, Method, Request, Response, Server, StatusCode};
+use serde_json::from_slice;
 use std::net::SocketAddr;
+use telegram_client::TelegramClient;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
@@ -60,16 +65,27 @@ fn main() {
 
 fn run<'a, 'b>(bot_token: &'a str, listening_address: &'b str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
+    let telegram = TelegramClient::new(bot_token.into());
 
     let server = Server::bind(&addr)
-        .serve(|| service_fn(echo))
+        .serve(|| service_fn(|x| echo(x, &telegram)))
         .map_err(|e| error!("server error: {}", e));
 
     info!("Listening on http://{}", addr);
     rt::run(server);
 }
 
-fn echo(req: Request<Body>) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
-    let mut response = Response::new(Body::empty());
-    future::ok(response)
+fn echo(
+    req: Request<Body>,
+    client: &TelegramClient,
+) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
+    let result = req.into_body().concat2().map(|chunk| {
+        let update = from_slice::<Update>(chunk.as_ref())?;
+        let chat_id = update.message.chat.id;
+
+        client
+            .send_message(chat_id, "Hello from bot")
+            .then(|_| Response::new(Body::empty()))
+    });
+    result
 }
