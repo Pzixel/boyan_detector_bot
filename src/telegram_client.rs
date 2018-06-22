@@ -40,14 +40,16 @@ impl TelegramClient {
 
     pub fn get_file(&mut self, file_id: &str) -> impl Future<Item = File, Error = TelegramClientError> {
         let url = format!("bot{}/getFile?file_id={}", self.token, file_id);
-        let result = self.send(Method::GET, &url).then(|result| match result {
-            Ok(res) => res.into_body().into_future().then(|result| {
-                let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
-                let chunk = item.unwrap();
-                from_reader(chunk.into()).map_err(|e| TelegramClientError::SerdeError(e))?
-            }),
-            Err(e) => future::err(TelegramClientError::HyperError(e)),
-        });
+        let result = self
+            .send(Method::GET, &url)
+            .map_err(|e| TelegramClientError::HyperError(e))
+            .and_then(|res| {
+                res.into_body().into_future().then(|result| {
+                    let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
+                    let chunk = item.unwrap();
+                    from_reader(chunk.into()).map_err(|e| TelegramClientError::SerdeError(e))?
+                })
+            });
         result
     }
 
