@@ -65,10 +65,10 @@ fn main() {
 
 fn run(bot_token: &str, listening_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
-    let telegram = TelegramClient::new(bot_token.into());
+    let telegram_client = TelegramClient::new(bot_token.into());
 
     let server = Server::bind(&addr)
-        .serve(|| service_fn(|x| echo(x, &telegram)))
+        .serve(|| service_fn(|x| echo(x, &telegram_client)))
         .map_err(|e| error!("server error: {}", e));
 
     info!("Listening on http://{}", addr);
@@ -77,13 +77,13 @@ fn run(bot_token: &str, listening_address: &str) {
 
 fn echo(
     req: Request<Body>,
-    client: &TelegramClient,
+    telegram_client: &TelegramClient,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
     let result = req.into_body().concat2().map(|chunk| {
         let update = from_slice::<Update>(chunk.as_ref())?;
         let chat_id = update.message.chat.id;
 
-        client
+        telegram_client
             .send_message(chat_id, "Hello from bot")
             .map(|_| Response::new(Body::empty()))
     });
