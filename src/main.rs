@@ -68,7 +68,10 @@ fn run(bot_token: &str, listening_address: &str) {
     let telegram_client = Arc::new(telegram_client);
 
     let server = Server::bind(&addr)
-        .serve(move || service_fn(|x| echo(x, telegram_client.clone())))
+        .serve(move || {
+            let telegram_client = telegram_client.clone();
+            service_fn(move |x| echo(x, telegram_client.clone()))
+        })
         .map_err(|e| error!("server error: {}", e));
 
     info!("Listening on http://{}", addr);
@@ -79,7 +82,7 @@ fn echo(
     req: Request<Body>,
     telegram_client: Arc<TelegramClient>,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
-    let result = req.into_body().concat2().and_then(|chunk| {
+    let result = req.into_body().concat2().and_then(move |chunk| {
         let result = from_slice::<Update>(chunk.as_ref());
         match result {
             Ok(u) => {
