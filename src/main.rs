@@ -1,5 +1,6 @@
 extern crate bytes;
 extern crate clap;
+extern crate either;
 extern crate futures;
 extern crate http;
 extern crate hyper;
@@ -22,6 +23,7 @@ mod telegram_client;
 use bytes::Buf;
 use clap::{App, Arg};
 use contract::Update;
+use either::*;
 use futures::future;
 use futures::Stream;
 use hyper::rt::{self, Future};
@@ -68,7 +70,7 @@ fn run(bot_token: &str, listening_address: &str) {
     let telegram_client = TelegramClient::new(bot_token.into());
 
     let server = Server::bind(&addr)
-        .serve(|| service_fn(|x| echo(x, &telegram_client)))
+        .serve(move || service_fn(|x| echo(x, &telegram_client)))
         .map_err(|e| error!("server error: {}", e));
 
     info!("Listening on http://{}", addr);
@@ -79,13 +81,24 @@ fn echo(
     req: Request<Body>,
     telegram_client: &TelegramClient,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
-    let result = req.into_body().concat2().map(|chunk| {
-        let update = from_slice::<Update>(chunk.as_ref())?;
-        let chat_id = update.message.chat.id;
-
-        telegram_client
-            .send_message(chat_id, "Hello from bot")
-            .map(|_| Response::new(Body::empty()))
+    let result = req.into_body().concat2().and_then(|chunk| {
+        let result = from_slice::<Update>(chunk.as_ref());
+        match result {
+            Ok(u) => {
+                let chat_id = u.message.chat.id;
+                Either::Left(
+                    telegram_client
+                        .send_message(chat_id, "Hello from bot")
+                        .map(|_| Response::new(Body::empty())),
+                )
+            }
+            Err(x) => Either::Right(future::ok(
+                Response::builder()
+                    .status(StatusCode::UNPROCESSABLE_ENTITY)
+                    .body(Body::empty())
+                    .unwrap(),
+            )),
+        }
     });
     result
 }
