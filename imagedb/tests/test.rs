@@ -6,7 +6,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 #[test]
-fn it_works() {
+fn detects_similar_images() {
     let lenna = fs::read(get_asset_path("lenna.png")).unwrap();
     let lenna_demotivator = fs::read(get_asset_path("lenna_demotivator.png")).unwrap();
     let solvay_conference = fs::read(get_asset_path("Solvay_conference_1927.jpg")).unwrap();
@@ -16,9 +16,9 @@ fn it_works() {
     let result_demotivator = storage.save_image_if_new(Image::new(lenna_demotivator, "2".into(), "lenna demotivator"));
     let result_solvay_conference =
         storage.save_image_if_new(Image::new(solvay_conference, "3".into(), "solvay_conference"));
-    assert!(result.is_new());
-    assert!(!result_demotivator.is_new());
-    assert!(result_solvay_conference.is_new());
+    assert_eq!(result, ImageVariant::New);
+    assert_eq!(result_demotivator, ImageVariant::AlreadyExists("lenna"));
+    assert_eq!(result_solvay_conference, ImageVariant::New);
 }
 
 pub fn get_asset_path(name: &'static str) -> PathBuf {

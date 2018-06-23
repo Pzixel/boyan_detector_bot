@@ -8,6 +8,7 @@ extern crate serde_json;
 use cv::hash::*;
 use cv::imgcodecs::*;
 use cv::*;
+use std::cmp::PartialEq;
 use std::fs;
 use std::fs::File;
 use std::marker::PhantomData;
@@ -61,10 +62,11 @@ pub enum ImageVariant<T: Clone> {
     AlreadyExists(T),
 }
 
-impl<T: Clone> ImageVariant<T> {
-    pub fn is_new(&self) -> bool {
-        match self {
-            ImageVariant::New => true,
+impl<T: Clone + PartialEq> PartialEq for ImageVariant<T> {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (ImageVariant::New, ImageVariant::New) => true,
+            (ImageVariant::AlreadyExists(a), ImageVariant::AlreadyExists(b)) if a == b => true,
             _ => false,
         }
     }
@@ -87,18 +89,18 @@ impl<T: Clone, D: Database<T>> Storage<T, D> {
 }
 
 impl<T: Clone, D: Database<T>> Storage<T, D> {
-    pub fn save_image_if_new(&mut self, image: Image<T>) -> ImageVariant<Image<T>> {
+    pub fn save_image_if_new(&mut self, image: Image<T>) -> ImageVariant<T> {
         const DIFF: f64 = 1.0;
 
         let mat = Mat::image_decode(&image.bytes, ImageReadMode::Color);
         let mat = self.hasher.compute(&mat);
         let mut last_diff = std::f64::INFINITY;
-        let mut result: Option<Image<T>> = None;
+        let mut result: Option<T> = None;
         for &(ref image, ref d) in self.images.iter() {
             let diff = self.hasher.compare(&mat, &image);
             if diff < last_diff {
                 last_diff = diff;
-                result = Some(d.clone());
+                result = Some(d.metadata.clone());
             }
         }
         if last_diff < DIFF {
