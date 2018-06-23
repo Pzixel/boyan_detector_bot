@@ -7,8 +7,9 @@ use hyper::client::HttpConnector;
 use hyper::client::ResponseFuture;
 use hyper::{Body, Client, Method, Request};
 use hyper_tls::HttpsConnector;
+use serde_json::from_slice;
 use serde_json::Error as SerdeError;
-use serde_json::{from_slice, to_string};
+use url::form_urlencoded::byte_serialize;
 
 #[derive(Debug, Fail)]
 /// Custom errors that may happen during calls
@@ -32,19 +33,15 @@ impl TelegramClient {
     }
 
     pub fn send_message(&self, chat_id: i64, text: &str) -> ResponseFuture {
-        let url = format!("bot{}/sendMessage", self.token);
-        let value = json!({
-           "chat_id": chat_id,
-           "text": text,
-        });
-        let json = to_string(&value).unwrap();
-        self.send(Method::POST, &url, json.into())
+        let text: String = byte_serialize(text.as_bytes()).collect();
+        let url = format!("bot{}/sendMessage?chat_id={}&text={}", self.token, chat_id, text);
+        self.send(Method::POST, &url)
     }
 
     pub fn get_file(&mut self, file_id: &str) -> impl Future<Item = File, Error = TelegramClientError> {
         let url = format!("bot{}/getFile?file_id={}", self.token, file_id);
         let result = self
-            .send(Method::GET, &url, Body::empty())
+            .send(Method::GET, &url)
             .map_err(|e| TelegramClientError::HyperError(e))
             .and_then(|res| {
                 res.into_body().into_future().then(|result| {
@@ -58,7 +55,7 @@ impl TelegramClient {
 
     pub fn download_file(&mut self, file_path: &str) -> impl Future<Item = Bytes, Error = hyper::Error> {
         let url = format!("file/bot{}/{}", self.token, file_path);
-        self.send(Method::GET, &url, Body::empty()).and_then(|res| {
+        self.send(Method::GET, &url).and_then(|res| {
             res.into_body()
                 .into_future()
                 .map(|(item, _)| item.unwrap().into_bytes())
@@ -66,9 +63,9 @@ impl TelegramClient {
         })
     }
 
-    fn send(&self, method: Method, url: &str, body: Body) -> ResponseFuture {
+    fn send(&self, method: Method, url: &str) -> ResponseFuture {
         let uri = format!("https://api.telegram.org/{}", url);
-        let request = Request::builder().method(method).uri(uri).body(body).unwrap();
+        let request = Request::builder().method(method).uri(uri).body(Body::empty()).unwrap();
         self.client.request(request)
     }
 }

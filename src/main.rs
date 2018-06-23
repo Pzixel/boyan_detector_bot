@@ -17,6 +17,8 @@ extern crate serde_json;
 #[macro_use]
 extern crate failure;
 
+extern crate url;
+
 mod contract;
 mod telegram_client;
 
