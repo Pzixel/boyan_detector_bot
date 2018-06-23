@@ -67,5 +67,3 @@ impl TelegramClient {
         self.client.request(request)
     }
 }
-
-unsafe impl Send for TelegramClient {}
