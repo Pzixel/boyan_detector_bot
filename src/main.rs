@@ -88,22 +88,38 @@ fn echo(
         match result {
             Ok(u) => {
                 let chat_id = u.message.chat.id;
-                if let Some(from) = u.message.from {}
                 Either::A(
                     telegram_client
                         .send_message(chat_id, "Hello from bot")
                         .then(move |result| {
                             let result = match result {
-                                Ok(ref response) if response.status().is_success() => Response::new(Body::empty()),
-                                _ => {
-                                    error!("Couldn't send a message. ChatId={}", chat_id);
-                                    Response::builder()
-                                        .status(StatusCode::INTERNAL_SERVER_ERROR)
-                                        .body(Body::empty())
-                                        .unwrap()
+                                Ok(response) => {
+                                    let foo = || {
+                                        if response.status().is_success() {
+                                            return Either::A(future::ok(Response::new(Body::empty())));
+                                        }
+                                        Either::B(
+                                            response.into_body().concat2().map(|chunk| Response::new(Body::empty())),
+                                        )
+                                    };
+                                    foo()
+                                }
+                                Err(e) => {
+                                    error!(
+                                        "Unknown error {}",
+                                        e.into_cause()
+                                            .map(|c| c.description().to_string())
+                                            .unwrap_or("".to_string())
+                                    );
+                                    Either::A(future::ok(
+                                        Response::builder()
+                                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                                            .body(Body::empty())
+                                            .unwrap(),
+                                    ))
                                 }
                             };
-                            future::ok(result)
+                            result
                         }),
                 )
             }
