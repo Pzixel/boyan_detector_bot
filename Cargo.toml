@@ -7,7 +7,6 @@ build = "build.rs"
 [dependencies]
 bytes = "0.4"
 clap = "2"
-either = "1.5"
 failure = "0.1"
 futures = "0.1.21"
 http = "0.1"
