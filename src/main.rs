@@ -11,8 +11,8 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
+#[macro_use]
 extern crate serde_json;
-extern crate url;
 
 #[macro_use]
 extern crate failure;
@@ -98,10 +98,10 @@ fn echo(
                                     if is_success {
                                         Either::A(future::ok(Response::new(Body::empty())))
                                     } else {
-                                        Either::B(response.into_body().concat2().map(|chunk| {
+                                        Either::B(response.into_body().concat2().map(move |chunk| {
                                             let bytes = chunk.into_bytes();
                                             let text: String = String::from_utf8_lossy(&bytes).into_owned();
-                                            error!("{}", text);
+                                            error!("Error while processing chat_id {}: {}", chat_id, text);
                                             Response::builder()
                                                 .status(StatusCode::INTERNAL_SERVER_ERROR)
                                                 .body(text.into())
@@ -111,7 +111,8 @@ fn echo(
                                 }
                                 Err(e) => {
                                     error!(
-                                        "Unknown error {}",
+                                        "Unknown error while processing chat_id {}: {}",
+                                        chat_id,
                                         e.into_cause()
                                             .map(|c| c.description().to_string())
                                             .unwrap_or("".to_string())
