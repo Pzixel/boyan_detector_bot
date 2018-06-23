@@ -94,15 +94,20 @@ fn echo(
                         .then(move |result| {
                             let result = match result {
                                 Ok(response) => {
-                                    let foo = || {
-                                        if response.status().is_success() {
-                                            return Either::A(future::ok(Response::new(Body::empty())));
-                                        }
-                                        Either::B(
-                                            response.into_body().concat2().map(|chunk| Response::new(Body::empty())),
-                                        )
-                                    };
-                                    foo()
+                                    let is_success = response.status().is_success();
+                                    if is_success {
+                                        Either::A(future::ok(Response::new(Body::empty())))
+                                    } else {
+                                        Either::B(response.into_body().concat2().map(|chunk| {
+                                            let bytes = chunk.into_bytes();
+                                            let text: String = String::from_utf8_lossy(&bytes).into_owned();
+                                            error!("{}", text);
+                                            Response::builder()
+                                                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                                                .body(text.into())
+                                                .unwrap()
+                                        }))
+                                    }
                                 }
                                 Err(e) => {
                                     error!(
