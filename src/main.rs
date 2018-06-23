@@ -66,11 +66,10 @@ fn main() {
 
 fn run(bot_token: &str, listening_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
-    let telegram_client = Box::new(TelegramClient::new(bot_token.into()));
-    let telegram_client: &'static mut _ = Box::leak(telegram_client);
+    let telegram_client = TelegramClient::new(bot_token.into());
 
     let server = Server::bind(&addr)
-        .serve(|| service_fn(|x| echo(x, telegram_client)))
+        .serve(move || service_fn(|x| echo(x, &telegram_client)))
         .map_err(|e| error!("server error: {}", e));
 
     info!("Listening on http://{}", addr);
@@ -79,7 +78,7 @@ fn run(bot_token: &str, listening_address: &str) {
 
 fn echo(
     req: Request<Body>,
-    telegram_client: &'static TelegramClient,
+    telegram_client: &TelegramClient,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
     let result = req.into_body().concat2().and_then(|chunk| {
         let result = from_slice::<Update>(chunk.as_ref());
