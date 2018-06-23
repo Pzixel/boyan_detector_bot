@@ -1,5 +1,5 @@
 **/target/
 /cmake-build-debug/
+/.idea/
 **/*.rs.bk
 *.lock
-/storage/
