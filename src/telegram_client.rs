@@ -1,13 +1,11 @@
-use bytes::Buf;
 use bytes::Bytes;
 use contract::File;
-use futures::future;
 use futures::Future;
 use futures::Stream;
 use hyper;
 use hyper::client::HttpConnector;
 use hyper::client::ResponseFuture;
-use hyper::{Body, Chunk, Client, Method, Request};
+use hyper::{Body, Client, Method, Request};
 use hyper_tls::HttpsConnector;
 use serde_json::from_slice;
 use serde_json::Error as SerdeError;
@@ -65,7 +63,7 @@ impl TelegramClient {
 
     fn send(&self, method: Method, url: &str) -> ResponseFuture {
         let uri = format!("https://api.telegram.org/{}", url);
-        let request = Request::post(uri).body(Body::empty()).unwrap();
+        let request = Request::builder().method(method).uri(uri).body(Body::empty()).unwrap();
         self.client.request(request)
     }
 }
