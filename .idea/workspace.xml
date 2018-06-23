@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/src/main.rs" description="let update = req.into_body().into_future().then(|r..." line="72" />
+    <bookmark url="file://$PROJECT_DIR$/src/main.rs" description="let update = req.into_body().into_future().then(|r..." line="71" />
   </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
     <generated>
@@ -29,11 +29,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.rs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="main.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="457">
-              <caret line="51" column="13" selection-start-line="37" selection-end-line="81" selection-end-column="70" />
+            <state relative-caret-position="531">
+              <caret line="92" column="43" lean-forward="true" selection-start-line="92" selection-start-column="43" selection-end-line="92" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -65,9 +65,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="rustfmt.toml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/rustfmt.toml">
-          <provider selected="true" editor-type-id="text-editor" />
+      <file leaf-file-name="request.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/http-0.1.6/src/request.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="409">
+              <caret line="920" column="11" selection-start-line="920" selection-start-column="11" selection-end-line="920" selection-end-column="11" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file leaf-file-name="Cargo.lock" pinned="false" current-in-tab="false">
@@ -79,29 +83,29 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.12.2/src/server/mod.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="245">
-              <caret line="228" column="11" selection-start-line="228" selection-start-column="11" selection-end-line="228" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="result.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.rustup/toolchains/nightly-x86_64-pc-windows-gnu/lib/rustlib/src/rust/src/libcore/result.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="778" column="11" selection-start-line="778" selection-start-column="11" selection-end-line="778" selection-end-column="11" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="telegram_client.rs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="telegram_client.rs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/telegram_client.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="971">
-              <caret line="72" column="7" selection-start-line="72" selection-start-column="7" selection-end-line="72" selection-end-column="7" />
+            <state relative-caret-position="-415">
+              <caret line="30" column="12" selection-start-line="30" selection-start-column="12" selection-end-line="30" selection-end-column="12" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.12.2/src/client/mod.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="22">
+              <caret line="448" column="11" selection-start-line="448" selection-start-column="11" selection-end-line="448" selection-end-column="11" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="body.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.12.2/src/body/body.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="484">
+              <caret line="90" column="11" selection-start-line="90" selection-start-column="11" selection-end-line="90" selection-end-column="11" />
             </state>
           </provider>
         </entry>
@@ -173,8 +177,8 @@
         <option value="$PROJECT_DIR$/.gitattributes" />
         <option value="$PROJECT_DIR$/build.rs" />
         <option value="$PROJECT_DIR$/Cargo.toml" />
-        <option value="$PROJECT_DIR$/src/telegram_client.rs" />
         <option value="$PROJECT_DIR$/src/main.rs" />
+        <option value="$PROJECT_DIR$/src/telegram_client.rs" />
       </list>
     </option>
   </component>
@@ -345,7 +349,7 @@
       <workItem from="1529606235012" duration="2248000" />
       <workItem from="1529659048642" duration="57000" />
       <workItem from="1529659539874" duration="9622000" />
-      <workItem from="1529699042277" duration="14649000" />
+      <workItem from="1529699042277" duration="15674000" />
     </task>
     <task id="LOCAL-00001" summary="repair">
       <created>1527197590767</created>
@@ -452,22 +456,36 @@
       <option name="project" value="LOCAL" />
       <updated>1529755992965</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="ether">
+      <created>1529758554698</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1529758554698</updated>
+    </task>
+    <task id="LOCAL-00017" summary="warnings fix">
+      <created>1529759374005</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1529759374005</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="109098000" />
+    <option name="totallyTimeSpent" value="110123000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="2208" height="1208" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2497721" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2497721" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="right" id="Cargo" order="3" visible="true" weight="0.13354604" />
       <window_info anchor="bottom" id="CMake" order="7" sideWeight="0.49772105" weight="0.29700273" />
       <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.5022789" side_tool="true" weight="0.3787466" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49772105" visible="true" weight="0.3787466" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49772105" visible="true" weight="0.3787466" />
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
@@ -499,7 +517,8 @@
     <MESSAGE value="logs" />
     <MESSAGE value="logsфыафыа" />
     <MESSAGE value="ether" />
-    <option name="LAST_COMMIT_MESSAGE" value="ether" />
+    <MESSAGE value="warnings fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="warnings fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -618,13 +637,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.12.2/src/client/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2354">
-          <caret line="107" column="11" selection-start-line="107" selection-start-column="11" selection-end-line="107" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitattributes">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1232">
@@ -657,20 +669,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="211">
           <caret line="524" column="7" selection-start-line="524" selection-start-column="7" selection-end-line="524" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/http-0.1.6/src/request.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="157" column="4" selection-start-line="157" selection-start-column="4" selection-end-line="157" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.12.2/src/body/body.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="484">
-          <caret line="22" column="11" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
         </state>
       </provider>
     </entry>
@@ -761,17 +759,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/telegram_client.rs">
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.12.2/src/body/body.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="971">
-          <caret line="72" column="7" selection-start-line="72" selection-start-column="7" selection-end-line="72" selection-end-column="7" />
+        <state relative-caret-position="484">
+          <caret line="90" column="11" selection-start-line="90" selection-start-column="11" selection-end-line="90" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/http-0.1.6/src/request.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="409">
+          <caret line="920" column="11" selection-start-line="920" selection-start-column="11" selection-end-line="920" selection-end-column="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="457">
-          <caret line="51" column="13" selection-start-line="37" selection-end-line="81" selection-end-column="70" />
+        <state relative-caret-position="531">
+          <caret line="92" column="43" lean-forward="true" selection-start-line="92" selection-start-column="43" selection-end-line="92" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/hyper-0.12.2/src/client/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22">
+          <caret line="448" column="11" selection-start-line="448" selection-start-column="11" selection-end-line="448" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/telegram_client.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-415">
+          <caret line="30" column="12" selection-start-line="30" selection-start-column="12" selection-end-line="30" selection-end-column="12" />
         </state>
       </provider>
     </entry>

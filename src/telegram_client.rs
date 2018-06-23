@@ -28,7 +28,7 @@ impl TelegramClient {
     pub fn new(token: String) -> Self {
         let https = HttpsConnector::new(4).unwrap();
         let client: Client<_, Body> = Client::builder().build(https);
-        TelegramClient { token, client }
+        Self { token, client }
     }
 
     pub fn send_message(&self, chat_id: i64, text: &str) -> ResponseFuture {
