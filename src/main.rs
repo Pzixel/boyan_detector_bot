@@ -12,6 +12,7 @@ extern crate log;
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
+extern crate url;
 
 #[macro_use]
 extern crate failure;
@@ -19,6 +20,7 @@ extern crate failure;
 mod contract;
 mod telegram_client;
 
+use bytes::Buf;
 use clap::{App, Arg};
 use contract::Update;
 use futures::future;
@@ -26,15 +28,16 @@ use futures::future::Either;
 use futures::Stream;
 use hyper::rt::{self, Future};
 use hyper::service::service_fn;
-use hyper::{Body, Request, Response, Server, StatusCode};
+use hyper::service::service_fn_ok;
+use hyper::{Body, Method, Request, Response, Server, StatusCode};
 use serde_json::from_slice;
 use std::net::SocketAddr;
-use std::sync::Arc;
 use telegram_client::TelegramClient;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
 fn main() {
+    return;
     log4rs::init_file("log4rs.toml", Default::default()).unwrap();
     std::fs::create_dir_all(STORAGE_DIR_NAME).unwrap();
 
@@ -64,14 +67,11 @@ fn main() {
 
 fn run(bot_token: &str, listening_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
-    let telegram_client = TelegramClient::new(bot_token.into());
-    let telegram_client = Arc::new(telegram_client);
+    let telegram_client = Box::new(TelegramClient::new(bot_token.into()));
+    let telegram_client: &'static mut _ = Box::leak(telegram_client);
 
     let server = Server::bind(&addr)
-        .serve(move || {
-            let telegram_client = telegram_client.clone();
-            service_fn(move |x| echo(x, telegram_client.clone()))
-        })
+        .serve(move || service_fn(|x| echo(x, telegram_client)))
         .map_err(|e| error!("server error: {}", e));
 
     info!("Listening on http://{}", addr);
@@ -80,9 +80,9 @@ fn run(bot_token: &str, listening_address: &str) {
 
 fn echo(
     req: Request<Body>,
-    telegram_client: Arc<TelegramClient>,
+    telegram_client: &'static TelegramClient,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
-    let result = req.into_body().concat2().and_then(move |chunk| {
+    let result = req.into_body().concat2().and_then(|chunk| {
         let result = from_slice::<Update>(chunk.as_ref());
         match result {
             Ok(u) => {
@@ -93,7 +93,7 @@ fn echo(
                         .map(|_| Response::new(Body::empty())),
                 )
             }
-            Err(_) => Either::B(future::ok(
+            Err(x) => Either::B(future::ok(
                 Response::builder()
                     .status(StatusCode::UNPROCESSABLE_ENTITY)
                     .body(Body::empty())

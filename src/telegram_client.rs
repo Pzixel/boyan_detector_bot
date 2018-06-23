@@ -9,6 +9,7 @@ use hyper::{Body, Client, Method, Request};
 use hyper_tls::HttpsConnector;
 use serde_json::from_slice;
 use serde_json::Error as SerdeError;
+use url::form_urlencoded::{byte_serialize, parse};
 
 #[derive(Debug, Fail)]
 /// Custom errors that may happen during calls
@@ -32,6 +33,7 @@ impl TelegramClient {
     }
 
     pub fn send_message(&self, chat_id: i64, text: &str) -> ResponseFuture {
+        let text: String = byte_serialize(text.as_bytes()).collect();
         let url = format!("bot{}/sendMessage?chat_id={}&text={}", self.token, chat_id, text);
         self.send(Method::POST, &url)
     }
