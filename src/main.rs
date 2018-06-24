@@ -18,8 +18,6 @@ extern crate serde_json;
 extern crate failure;
 extern crate tokio;
 
-extern crate url;
-
 mod contract;
 mod telegram_client;
 
