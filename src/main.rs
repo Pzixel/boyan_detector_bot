@@ -115,9 +115,9 @@ fn echo(
             Ok(update) => {
                 let chat_id = update.message.chat.id;
                 let message_id = update.message.message_id;
-                let file_id = if let Some(document) = update.message.document {
+                let file_id = if let Some(ref document) = update.message.document {
                     Some(&document.file_id)
-                } else if let Some(photo) = update.message.photo {
+                } else if let Some(ref photo) = update.message.photo {
                     photo.get(0).map(|x| &x.file_id)
                 } else {
                     None
