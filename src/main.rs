@@ -112,12 +112,24 @@ fn echo(
     let result = req.into_body().concat2().and_then(move |chunk| {
         let result = from_slice::<Update>(chunk.as_ref());
         match result {
-            Ok(u) => {
-                let chat_id = u.message.chat.id;
-                let message_id = u.message.message_id;
+            Ok(update) => {
+                let chat_id = update.message.chat.id;
+                let message_id = update.message.message_id;
+                let file_id = if let Some(document) = update.message.document {
+                    Some(&document.file_id)
+                } else if let Some(photo) = update.message.photo {
+                    photo.get(0).map(|x| &x.file_id)
+                } else {
+                    None
+                };
+
                 Either::A(
                     telegram_client
-                        .send_message(chat_id, "Hello from bot", Some(message_id))
+                        .send_message(
+                            chat_id,
+                            &format!("Hello from bot. Got file with id: {:?}", file_id),
+                            Some(message_id),
+                        )
                         .then(move |result| {
                             let result = match result {
                                 Ok(response) => {
@@ -166,3 +178,7 @@ fn echo(
     });
     result
 }
+
+//fn save_document(file_id: &str) {
+//
+//}
