@@ -1,7 +1,6 @@
 use bytes::Buf;
 use bytes::Bytes;
 use contract::*;
-use futures::future;
 use futures::Future;
 use futures::Stream;
 use hyper;
@@ -80,7 +79,6 @@ impl TelegramClient {
                 res.into_body().into_future().then(|result| {
                     let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
                     let chunk = item.unwrap();
-                    let text: String = String::from_utf8_lossy(&chunk.bytes()).into_owned();
                     from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))
                 })
             });
