@@ -9,6 +9,7 @@ use hyper::client::HttpConnector;
 use hyper::client::ResponseFuture;
 use hyper::{Body, Client, Method, Request};
 use hyper_tls::HttpsConnector;
+use serde::de::DeserializeOwned;
 use serde_json::from_slice;
 use serde_json::Error as SerdeError;
 use url::form_urlencoded::byte_serialize;
@@ -54,20 +55,8 @@ impl TelegramClient {
 
     pub fn get_me(&self) -> impl Future<Item = User, Error = TelegramClientError> {
         let url = format!("bot{}/getMe", self.token);
-        let result = self
-            .send(Method::GET, &url)
-            .map_err(|e| TelegramClientError::HyperError(e))
-            .and_then(|res| {
-                res.into_body().into_future().then(|result| {
-                    let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
-                    let chunk = item.unwrap();
-                    let text: String = String::from_utf8_lossy(&chunk.bytes()).into_owned();
-                    let result: ApiResult<User> =
-                        from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))?;
-                    Ok(result.result)
-                })
-            });
-        result
+        self.send_and_deserialize::<ApiResult<User>>(Method::GET, &url)
+            .map(|result| result.result)
     }
 
     pub fn send_message(&self, chat_id: i64, text: &str) -> ResponseFuture {
@@ -99,6 +88,25 @@ impl TelegramClient {
                 .map(|(item, _)| item.unwrap().into_bytes())
                 .map_err(|(err, _)| err)
         })
+    }
+
+    fn send_and_deserialize<T: DeserializeOwned>(
+        &self,
+        method: Method,
+        url: &str,
+    ) -> impl Future<Item = T, Error = TelegramClientError> {
+        let result = self
+            .send(method, &url)
+            .map_err(|e| TelegramClientError::HyperError(e))
+            .and_then(|res| {
+                res.into_body().into_future().then(|result| {
+                    let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
+                    let chunk = item.unwrap();
+                    let text: String = String::from_utf8_lossy(&chunk.bytes()).into_owned();
+                    from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))
+                })
+            });
+        result
     }
 
     fn send(&self, method: Method, url: &str) -> ResponseFuture {
