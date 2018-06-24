@@ -115,12 +115,10 @@ fn echo(
             Ok(update) => {
                 let chat_id = update.message.chat.id;
                 let message_id = update.message.message_id;
-                let file_id = if let Some(ref document) = update.message.document {
-                    Some(&document.file_id)
-                } else if let Some(ref photo) = update.message.photo {
-                    photo.get(0).map(|x| &x.file_id)
-                } else {
-                    None
+                let file_id = match (&update.message.document, &update.message.photo) {
+                    (Some(ref document), _) => Some(&document.file_id),
+                    (_, Some(ref photo)) => photo.get(0).map(|x| &x.file_id),
+                    _ => None,
                 };
 
                 Either::A(
