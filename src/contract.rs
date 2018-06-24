@@ -64,3 +64,9 @@ pub struct Update {
     pub update_id: i64,
     pub message: Message,
 }
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ApiResult<T> {
+    pub ok: bool,
+    pub result: T,
+}

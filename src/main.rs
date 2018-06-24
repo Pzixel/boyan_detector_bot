@@ -16,6 +16,7 @@ extern crate serde_json;
 
 #[macro_use]
 extern crate failure;
+extern crate tokio_core;
 
 extern crate url;
 
@@ -34,6 +35,7 @@ use serde_json::from_slice;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use telegram_client::TelegramClient;
+use tokio_core::reactor::Core;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
@@ -68,8 +70,14 @@ fn main() {
 fn run(bot_token: &str, listening_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
     let telegram_client = TelegramClient::new(bot_token.into());
-    let telegram_client = Arc::new(telegram_client);
 
+    let me = telegram_client.get_me();
+    let mut core = Core::new().unwrap();
+    let me = core.run(me).unwrap();
+
+    info!("Started as {}", me.first_name);
+
+    let telegram_client = Arc::new(telegram_client);
     let server = Server::bind(&addr)
         .serve(move || {
             let telegram_client = telegram_client.clone();

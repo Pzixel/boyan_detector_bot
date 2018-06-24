@@ -1,5 +1,7 @@
+use bytes::Buf;
 use bytes::Bytes;
-use contract::File;
+use contract::*;
+use futures::future;
 use futures::Future;
 use futures::Stream;
 use hyper;
@@ -30,6 +32,24 @@ impl TelegramClient {
         let https = HttpsConnector::new(4).unwrap();
         let client: Client<_, Body> = Client::builder().build(https);
         Self { token, client }
+    }
+
+    pub fn get_me(&self) -> impl Future<Item = User, Error = TelegramClientError> {
+        let url = format!("bot{}/getMe", self.token);
+        let result = self
+            .send(Method::GET, &url)
+            .map_err(|e| TelegramClientError::HyperError(e))
+            .and_then(|res| {
+                res.into_body().into_future().then(|result| {
+                    let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
+                    let chunk = item.unwrap();
+                    let text: String = String::from_utf8_lossy(&chunk.bytes()).into_owned();
+                    let result: ApiResult<User> =
+                        from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))?;
+                    Ok(result.result)
+                })
+            });
+        result
     }
 
     pub fn send_message(&self, chat_id: i64, text: &str) -> ResponseFuture {
