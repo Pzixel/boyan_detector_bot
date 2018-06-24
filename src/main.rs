@@ -60,7 +60,7 @@ fn main() {
         )
         .arg(
             Arg::with_name("externalAddress")
-                .short("ea")
+                .short("e")
                 .long("externalAddress")
                 .help("Sets the external address where webhook should be setted up")
                 .takes_value(true)
