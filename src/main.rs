@@ -114,9 +114,10 @@ fn echo(
         match result {
             Ok(u) => {
                 let chat_id = u.message.chat.id;
+                let message_id = u.message.message_id;
                 Either::A(
                     telegram_client
-                        .send_message(chat_id, "Hello from bot")
+                        .send_message(chat_id, "Hello from bot", Some(message_id))
                         .then(move |result| {
                             let result = match result {
                                 Ok(response) => {

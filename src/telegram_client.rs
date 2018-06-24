@@ -44,11 +44,12 @@ impl TelegramClient {
             .map(|result| result.result)
     }
 
-    pub fn send_message(&self, chat_id: i64, text: &str) -> ResponseFuture {
+    pub fn send_message(&self, chat_id: i64, text: &str, reply_to_message_id: Option<i64>) -> ResponseFuture {
         let url = format!("bot{}/sendMessage", self.token);
         let value = json!({
             "chat_id": chat_id,
             "text": text,
+            "reply_to_message_id": reply_to_message_id
         });
         let json = value.to_string();
         self.send(Method::POST, &url, json.into())
