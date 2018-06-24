@@ -16,7 +16,7 @@ extern crate serde_json;
 
 #[macro_use]
 extern crate failure;
-extern crate tokio_core;
+extern crate tokio;
 
 extern crate url;
 
@@ -35,7 +35,7 @@ use serde_json::from_slice;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use telegram_client::TelegramClient;
-use tokio_core::reactor::Core;
+use tokio::runtime::Runtime;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
@@ -80,12 +80,14 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
     let telegram_client = TelegramClient::new(bot_token.into());
 
-    let mut core = Core::new().unwrap();
-    let me = core.run(telegram_client.get_me()).unwrap();
+    let mut runtime = Runtime::new().unwrap();
+    let me = runtime.block_on(telegram_client.get_me()).unwrap();
 
     info!("Started as {}", me.first_name);
 
-    let web_hook_is_set = core.run(telegram_client.set_web_hook(external_address)).unwrap();
+    let web_hook_is_set = runtime
+        .block_on(telegram_client.set_web_hook(external_address))
+        .unwrap();
 
     if !web_hook_is_set {
         panic!("Couldn't set web hook. Cannot process updates.");
