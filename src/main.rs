@@ -60,22 +60,38 @@ fn main() {
                 .takes_value(true)
                 .required(true),
         )
+        .arg(
+            Arg::with_name("externalAddress")
+                .short("ea")
+                .long("externalAddress")
+                .help("Sets the external address where webhook should be setted up")
+                .takes_value(true)
+                .required(true),
+        )
         .get_matches();
 
     let bot_token = matches.value_of("token").unwrap();
     let address = matches.value_of("address").unwrap();
-    run(&bot_token, &address);
+    let external_address = matches.value_of("externalAddress").unwrap();
+    run(bot_token, address, external_address);
 }
 
-fn run(bot_token: &str, listening_address: &str) {
+fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
     let telegram_client = TelegramClient::new(bot_token.into());
 
-    let me = telegram_client.get_me();
     let mut core = Core::new().unwrap();
-    let me = core.run(me).unwrap();
+    let me = core.run(telegram_client.get_me()).unwrap();
 
     info!("Started as {}", me.first_name);
+
+    let web_hook_is_set = core.run(telegram_client.set_web_hook(external_address)).unwrap();
+
+    if !web_hook_is_set {
+        panic!("Couldn't set web hook. Cannot process updates.");
+    }
+
+    info!("Webhook has been set on {}", external_address);
 
     let telegram_client = Arc::new(telegram_client);
     let server = Server::bind(&addr)

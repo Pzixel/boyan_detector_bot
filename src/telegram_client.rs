@@ -34,6 +34,24 @@ impl TelegramClient {
         Self { token, client }
     }
 
+    pub fn set_web_hook(&self, address: &str) -> impl Future<Item = bool, Error = TelegramClientError> {
+        let url = format!("bot{}/setWebhook?url={}/update", self.token, address);
+        let result = self
+            .send(Method::GET, &url)
+            .map_err(|e| TelegramClientError::HyperError(e))
+            .and_then(|res| {
+                res.into_body().into_future().then(|result| {
+                    let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
+                    let chunk = item.unwrap();
+                    let text: String = String::from_utf8_lossy(&chunk.bytes()).into_owned();
+                    let result: ApiResult<bool> =
+                        from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))?;
+                    Ok(result.result)
+                })
+            });
+        result
+    }
+
     pub fn get_me(&self) -> impl Future<Item = User, Error = TelegramClientError> {
         let url = format!("bot{}/getMe", self.token);
         let result = self
