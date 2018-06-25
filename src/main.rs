@@ -131,7 +131,7 @@ fn echo(
 
                             let file_path = file.file_path.clone();
 
-                            let inner_f = if let Some(file_path) = file_path {
+                            let inner_f = if let Some(file_path) = get_file_path_if_processable(file_path) {
                                 Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
                                     telegram_client.send_message(
                                         chat_id,
@@ -144,6 +144,7 @@ fn echo(
                                     )
                                 }))
                             } else {
+                                info!("Skipping unsupported extension");
                                 Either::B(future::ok(()))
                             };
                             inner_f
@@ -176,4 +177,16 @@ fn echo(
         }
     });
     result
+}
+
+fn get_file_path_if_processable(file_path: Option<String>) -> Option<String> {
+    if let Some(file_path) = file_path {
+        if let Some(ext) = file_path.rsplit('.').next().map(|x| x.to_string()) {
+            let ext = ext.to_lowercase();
+            if ext == "jpg" || ext == "png" {
+                return Some(file_path);
+            }
+        }
+    }
+    None
 }
