@@ -55,12 +55,12 @@ impl TelegramClient {
         self.send(Method::POST, &url, json.into())
     }
 
-    pub fn get_file(&mut self, file_id: &str) -> impl Future<Item = File, Error = TelegramClientError> {
+    pub fn get_file(&self, file_id: &str) -> impl Future<Item = File, Error = TelegramClientError> {
         let url = format!("bot{}/getFile?file_id={}", self.token, file_id);
         self.send_and_deserialize(Method::GET, &url, Body::empty())
     }
 
-    pub fn download_file(&mut self, file_path: &str) -> impl Future<Item = Bytes, Error = hyper::Error> {
+    pub fn download_file(&self, file_path: &str) -> impl Future<Item = Bytes, Error = hyper::Error> {
         let url = format!("file/bot{}/{}", self.token, file_path);
         self.send(Method::GET, &url, Body::empty()).and_then(|res| {
             res.into_body()

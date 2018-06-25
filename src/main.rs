@@ -121,50 +121,53 @@ fn echo(
                     _ => None,
                 };
 
-                Either::A(
-                    telegram_client
-                        .send_message(
-                            chat_id,
-                            &format!("Hello from bot. Got file with id: {:?}", file_id),
-                            Some(message_id),
-                        )
-                        .then(move |result| {
-                            let result = match result {
-                                Ok(response) => {
-                                    let is_success = response.status().is_success();
-                                    if is_success {
-                                        Either::A(future::ok(Response::new(Body::empty())))
-                                    } else {
-                                        Either::B(response.into_body().concat2().map(move |chunk| {
-                                            let bytes = chunk.into_bytes();
-                                            let text: String = String::from_utf8_lossy(&bytes).into_owned();
-                                            error!("Error while processing chat_id {}: {}", chat_id, text);
+                match file_id {
+                    Some(file_id) => Either::A(
+                        telegram_client
+                            .send_message(
+                                chat_id,
+                                &format!("Hello from bot. Got file with id: {:?}", file_id),
+                                Some(message_id),
+                            )
+                            .then(move |result| {
+                                let result = match result {
+                                    Ok(response) => {
+                                        let is_success = response.status().is_success();
+                                        if is_success {
+                                            Either::A(future::ok(Response::new(Body::empty())))
+                                        } else {
+                                            Either::B(response.into_body().concat2().map(move |chunk| {
+                                                let bytes = chunk.into_bytes();
+                                                let text: String = String::from_utf8_lossy(&bytes).into_owned();
+                                                error!("Error while processing chat_id {}: {}", chat_id, text);
+                                                Response::builder()
+                                                    .status(StatusCode::INTERNAL_SERVER_ERROR)
+                                                    .body(text.into())
+                                                    .unwrap()
+                                            }))
+                                        }
+                                    }
+                                    Err(e) => {
+                                        error!(
+                                            "Unknown error while processing chat_id {}: {}",
+                                            chat_id,
+                                            e.into_cause()
+                                                .map(|c| c.description().to_string())
+                                                .unwrap_or("".to_string())
+                                        );
+                                        Either::A(future::ok(
                                             Response::builder()
                                                 .status(StatusCode::INTERNAL_SERVER_ERROR)
-                                                .body(text.into())
-                                                .unwrap()
-                                        }))
+                                                .body(Body::empty())
+                                                .unwrap(),
+                                        ))
                                     }
-                                }
-                                Err(e) => {
-                                    error!(
-                                        "Unknown error while processing chat_id {}: {}",
-                                        chat_id,
-                                        e.into_cause()
-                                            .map(|c| c.description().to_string())
-                                            .unwrap_or("".to_string())
-                                    );
-                                    Either::A(future::ok(
-                                        Response::builder()
-                                            .status(StatusCode::INTERNAL_SERVER_ERROR)
-                                            .body(Body::empty())
-                                            .unwrap(),
-                                    ))
-                                }
-                            };
-                            result
-                        }),
-                )
+                                };
+                                result
+                            }),
+                    ),
+                    None => Either::B(future::ok(Response::new(Body::empty()))),
+                }
             }
             Err(_) => Either::B(future::ok(
                 Response::builder()
