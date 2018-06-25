@@ -33,7 +33,6 @@ use serde_json::from_slice;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use telegram_client::TelegramClient;
-use tokio::prelude::future::FutureResult;
 use tokio::runtime::Runtime;
 
 const STORAGE_DIR_NAME: &str = "storage";
@@ -129,9 +128,7 @@ fn echo(
                             &format!("Hello from bot. Got file with id: {:?}", file_id),
                             Some(message_id),
                         );
-                        Either::A::<_, FutureResult<Response<Body>, hyper::Error>>(then_process_message(f, || {
-                            future::ok(Response::new(Body::empty()))
-                        }))
+                        then_process_message(f, || future::ok(Response::new(Body::empty())))
                     }),
                     None => Either::B(future::ok(Response::new(Body::empty()))),
                 }
