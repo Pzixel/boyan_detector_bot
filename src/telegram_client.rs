@@ -90,12 +90,10 @@ impl TelegramClient {
             .map_err(|e| TelegramClientError::HyperError(e))
             .then(|result| match result {
                 Ok(response) => {
-                    let result = response.into_body().concat2().then(|result| {
+                    let is_success = response.status().is_success();
+                    let result = response.into_body().concat2().then(move |result| {
                         let chunk = result.map_err(|e| TelegramClientError::HyperError(e))?;
-
-                        let is_success = response.status().is_success();
-
-                        if is_success {
+                        if true {
                             from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))
                         } else {
                             let bytes = chunk.into_bytes();
