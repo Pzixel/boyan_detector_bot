@@ -143,7 +143,21 @@ fn echo(
                                 )
                             })
                         });
-                        then_process_message(f, |_| future::ok(Response::new(Body::empty())))
+                        f.then(move |result| {
+                            let result = match result {
+                                Ok(_) => Either::A(future::ok(Response::new(Body::empty()))),
+                                Err(e) => {
+                                    error!("Error while processing: {}", e);
+                                    Either::B(future::ok(
+                                        Response::builder()
+                                            .status(StatusCode::INTERNAL_SERVER_ERROR)
+                                            .body(Body::empty())
+                                            .unwrap(),
+                                    ))
+                                }
+                            };
+                            result
+                        })
                     }),
                     None => Either::B(future::ok(Response::new(Body::empty()))),
                 }
@@ -158,33 +172,3 @@ fn echo(
     });
     result
 }
-
-fn then_process_message<
-    T,
-    FutureIn: Future<Item = T, Error = TelegramClientError>,
-    FutureOut: Future<Item = Response<Body>, Error = hyper::Error>,
-    Func: Fn(T) -> FutureOut,
->(
-    f: FutureIn,
-    func: Func,
-) -> impl Future<Item = Response<Body>, Error = hyper::Error> {
-    f.then(move |result| {
-        let result = match result {
-            Ok(x) => Either::A(func(x)),
-            Err(e) => {
-                error!("Error while processing: {}", e);
-                Either::B(future::ok(
-                    Response::builder()
-                        .status(StatusCode::INTERNAL_SERVER_ERROR)
-                        .body(Body::empty())
-                        .unwrap(),
-                ))
-            }
-        };
-        result
-    })
-}
-
-//fn save_document(file_id: &str) {
-//
-//}
