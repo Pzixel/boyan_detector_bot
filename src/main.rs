@@ -23,7 +23,7 @@ mod contract;
 mod telegram_client;
 
 use clap::{App, Arg};
-use contract::Update;
+use contract::{File, Update};
 use futures::future;
 use futures::future::Either;
 use futures::Stream;
@@ -33,7 +33,6 @@ use hyper::{Body, Request, Response, Server, StatusCode};
 use imagedb::*;
 use serde_json::from_slice;
 use std::net::SocketAddr;
-use std::path::PathBuf;
 use std::sync::Arc;
 use telegram_client::*;
 use tokio::runtime::Runtime;
@@ -80,8 +79,7 @@ fn main() {
 fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
     let telegram_client = TelegramClient::new(bot_token.into());
-    let storage = FileStorage::new(PathBuf::new(STORAGE_DIR_NAME));
-    let db = ImageDb::new(storage);
+    let _storage = FileStorage::<File>::new(STORAGE_DIR_NAME.into());
 
     let mut runtime = Runtime::new().unwrap();
     let me = runtime.block_on(telegram_client.get_me()).unwrap();
