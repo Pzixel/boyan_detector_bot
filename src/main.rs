@@ -117,18 +117,31 @@ fn echo(
                 let message_id = update.message.message_id;
                 let file_id = match (&update.message.document, &update.message.photo) {
                     (Some(ref document), _) => Some(&document.file_id),
-                    (_, Some(ref photo)) => photo.get(0).map(|x| &x.file_id),
+                    (_, Some(ref photo)) => photo
+                        .iter()
+                        .max_by_key(|x| x.file_size.unwrap_or(0))
+                        .map(|x| &x.file_id),
                     _ => None,
                 };
 
                 match file_id {
                     Some(file_id) => Either::A({
-                        let f = telegram_client.get_file(file_id).and_then(move |x| {
-                            telegram_client.send_message(
-                                chat_id,
-                                &format!("Hello from bot. Got file with id: {:?}", x.file_id),
-                                Some(message_id),
-                            )
+                        let f = telegram_client.get_file(file_id).and_then(move |file| {
+                            info!("Checking file {:?}", file);
+
+                            let file_path = file.file_path.clone().unwrap();
+
+                            telegram_client.download_file(&file_path).and_then(move |bytes| {
+                                telegram_client.send_message(
+                                    chat_id,
+                                    &format!(
+                                        "Hello from bot. Got file with id: {}. File length is {} bytes",
+                                        file.file_id,
+                                        bytes.len()
+                                    ),
+                                    Some(message_id),
+                                )
+                            })
                         });
                         then_process_message(f, |_| future::ok(Response::new(Body::empty())))
                     }),

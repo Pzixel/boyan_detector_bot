@@ -1,3 +1,4 @@
+use bytes::Bytes;
 use contract::*;
 use futures::future;
 use futures::future::Either;
@@ -6,7 +7,7 @@ use futures::Stream;
 use hyper;
 use hyper::client::HttpConnector;
 use hyper::client::ResponseFuture;
-use hyper::{Body, Client, Method, Request};
+use hyper::{Body, Chunk, Client, Method, Request};
 use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 use serde_json::from_slice;
@@ -66,15 +67,10 @@ impl TelegramClient {
         self.send_and_deserialize(Method::GET, &url, Body::empty())
     }
 
-    //    pub fn download_file(&self, file_path: &str) -> impl Future<Item = Bytes, Error = hyper::Error> {
-    //        let url = format!("file/bot{}/{}", self.token, file_path);
-    //        self.send(Method::GET, &url, Body::empty()).and_then(|res| {
-    //            res.into_body()
-    //                .into_future()
-    //                .map(|(item, _)| item.unwrap().into_bytes())
-    //                .map_err(|(err, _)| err)
-    //        })
-    //    }
+    pub fn download_file(&self, file_path: &str) -> impl Future<Item = Bytes, Error = TelegramClientError> {
+        let url = format!("file/bot{}/{}", self.token, file_path);
+        self.send(Method::GET, &url, Body::empty(), |chunk| Ok(chunk.into_bytes()))
+    }
 
     fn send_and_deserialize<T: DeserializeOwned>(
         &self,
@@ -82,13 +78,13 @@ impl TelegramClient {
         url: &str,
         body: Body,
     ) -> impl Future<Item = T, Error = TelegramClientError> {
-        self.send(method, url, body, |x| {
-            let result = from_slice::<ApiResult<T>>(x);
+        self.send(method, url, body, |chunk| {
+            let result = from_slice::<ApiResult<T>>(chunk.as_ref());
             match result {
                 Ok(api_result) => if api_result.ok {
                     Ok(api_result.result)
                 } else {
-                    let text: String = String::from_utf8_lossy(x).into_owned();
+                    let text: String = String::from_utf8_lossy(chunk.as_ref()).into_owned();
                     Err(TelegramClientError::ConnectionError(text))
                 },
                 Err(e) => Err(TelegramClientError::SerdeError(e)),
@@ -101,7 +97,7 @@ impl TelegramClient {
         method: Method,
         url: &str,
         body: Body,
-        map: impl Fn(&[u8]) -> Result<T, TelegramClientError>,
+        map: impl FnOnce(Chunk) -> Result<T, TelegramClientError>,
     ) -> impl Future<Item = T, Error = TelegramClientError> {
         let result = self
             .send_internal(method, &url, body)
@@ -112,7 +108,7 @@ impl TelegramClient {
                     let result = response.into_body().concat2().then(move |result| {
                         let chunk = result.map_err(|e| TelegramClientError::HyperError(e))?;
                         if is_success {
-                            map(chunk.as_ref())
+                            map(chunk)
                         } else {
                             let bytes = chunk.into_bytes();
                             let text: String = String::from_utf8_lossy(&bytes).into_owned();
