@@ -123,7 +123,7 @@ fn echo(
 
                 match file_id {
                     Some(file_id) => Either::A({
-                        let f = telegram_client.get_file(file_id).and_then(|x| {
+                        let f = telegram_client.get_file(file_id).and_then(move |x| {
                             telegram_client.send_message(
                                 chat_id,
                                 &format!("Hello from bot. Got file with id: {:?}", x.file_id),

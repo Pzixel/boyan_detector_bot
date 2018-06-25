@@ -37,14 +37,12 @@ impl TelegramClient {
 
     pub fn set_web_hook(&self, address: &str) -> impl Future<Item = bool, Error = TelegramClientError> {
         let url = format!("bot{}/setWebhook?url={}/update", self.token, address);
-        self.send_and_deserialize::<ApiResult<bool>>(Method::POST, &url, Body::empty())
-            .map(|result| result.result)
+        self.send_and_deserialize(Method::POST, &url, Body::empty())
     }
 
     pub fn get_me(&self) -> impl Future<Item = User, Error = TelegramClientError> {
         let url = format!("bot{}/getMe", self.token);
-        self.send_and_deserialize::<ApiResult<User>>(Method::GET, &url, Body::empty())
-            .map(|result| result.result)
+        self.send_and_deserialize(Method::GET, &url, Body::empty())
     }
 
     pub fn send_message(
@@ -85,7 +83,16 @@ impl TelegramClient {
         body: Body,
     ) -> impl Future<Item = T, Error = TelegramClientError> {
         self.send(method, url, body, |x| {
-            from_slice(x).map_err(|e| TelegramClientError::SerdeError(e))
+            let result = from_slice::<ApiResult<T>>(x);
+            match result {
+                Ok(api_result) => if api_result.ok {
+                    Ok(api_result.result)
+                } else {
+                    let text: String = String::from_utf8_lossy(x).into_owned();
+                    Err(TelegramClientError::ConnectionError(text))
+                },
+                Err(e) => Err(TelegramClientError::SerdeError(e)),
+            }
         })
     }
 
