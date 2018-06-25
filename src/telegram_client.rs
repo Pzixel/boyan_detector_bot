@@ -1,5 +1,7 @@
 use bytes::Bytes;
 use contract::*;
+use future::Either;
+use futures::future;
 use futures::Future;
 use futures::Stream;
 use hyper;
@@ -18,6 +20,8 @@ pub enum TelegramClientError {
     HyperError(hyper::Error),
     #[fail(display = "Serde error: {:?}", _0)]
     SerdeError(SerdeError),
+    #[fail(display = "Connection error: {:?}", _0)]
+    ConnectionError(String),
 }
 
 pub struct TelegramClient {
@@ -44,7 +48,12 @@ impl TelegramClient {
             .map(|result| result.result)
     }
 
-    pub fn send_message(&self, chat_id: i64, text: &str, reply_to_message_id: Option<i64>) -> ResponseFuture {
+    pub fn send_message(
+        &self,
+        chat_id: i64,
+        text: &str,
+        reply_to_message_id: Option<i64>,
+    ) -> impl Future<Item = (), Error = TelegramClientError> {
         let url = format!("bot{}/sendMessage", self.token);
         let value = json!({
             "chat_id": chat_id,
@@ -52,7 +61,7 @@ impl TelegramClient {
             "reply_to_message_id": reply_to_message_id
         });
         let json = value.to_string();
-        self.send(Method::POST, &url, json.into())
+        self.send_and_deserialize(Method::POST, &url, json.into())
     }
 
     pub fn get_file(&self, file_id: &str) -> impl Future<Item = File, Error = TelegramClientError> {
@@ -79,12 +88,24 @@ impl TelegramClient {
         let result = self
             .send(method, &url, body)
             .map_err(|e| TelegramClientError::HyperError(e))
-            .and_then(|res| {
-                res.into_body().into_future().then(|result| {
-                    let (item, _) = result.map_err(|(e, _)| TelegramClientError::HyperError(e))?;
-                    let chunk = item.unwrap();
-                    from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))
-                })
+            .then(|result| match result {
+                Ok(response) => {
+                    let result = response.into_body().concat2().then(|result| {
+                        let chunk = result.map_err(|e| TelegramClientError::HyperError(e))?;
+
+                        let is_success = response.status().is_success();
+
+                        if is_success {
+                            from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))
+                        } else {
+                            let bytes = chunk.into_bytes();
+                            let text: String = String::from_utf8_lossy(&bytes).into_owned();
+                            Err(TelegramClientError::ConnectionError(text))
+                        }
+                    });
+                    Either::A(result)
+                }
+                Err(e) => Either::B(future::err(e)),
             });
         result
     }

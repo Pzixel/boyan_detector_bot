@@ -32,7 +32,7 @@ use hyper::{Body, Request, Response, Server, StatusCode};
 use serde_json::from_slice;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use telegram_client::TelegramClient;
+use telegram_client::*;
 use tokio::runtime::Runtime;
 
 const STORAGE_DIR_NAME: &str = "storage";
@@ -145,38 +145,18 @@ fn echo(
 }
 
 fn then_process_message<
-    F: Future<Item = Response<Body>, Error = hyper::Error> + Send,
-    FO: Future<Item = Response<Body>, Error = hyper::Error> + Send,
+    T,
+    F: Future<Item = T, Error = TelegramClientError>,
+    FO: Future<Item = Response<Body>, Error = hyper::Error>,
 >(
     f: F,
     func: impl Fn() -> FO,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> {
     f.then(move |result| {
         let result = match result {
-            Ok(response) => {
-                let is_success = response.status().is_success();
-                let result = if is_success {
-                    Either::A(func())
-                } else {
-                    Either::B(response.into_body().concat2().map(move |chunk| {
-                        let bytes = chunk.into_bytes();
-                        let text: String = String::from_utf8_lossy(&bytes).into_owned();
-                        error!("Error from tg: {}", text);
-                        Response::builder()
-                            .status(StatusCode::GATEWAY_TIMEOUT)
-                            .body(text.into())
-                            .unwrap()
-                    }))
-                };
-                Either::A(result)
-            }
+            Ok(response) => Either::A(func()),
             Err(e) => {
-                error!(
-                    "Unknown error while processing: {}",
-                    e.into_cause()
-                        .map(|c| c.description().to_string())
-                        .unwrap_or("".to_string())
-                );
+                error!("Error while processing: {}", e);
                 Either::B(future::ok(
                     Response::builder()
                         .status(StatusCode::INTERNAL_SERVER_ERROR)
