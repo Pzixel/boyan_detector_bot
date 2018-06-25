@@ -123,11 +123,13 @@ fn echo(
 
                 match file_id {
                     Some(file_id) => Either::A({
-                        let f = telegram_client.send_message(
-                            chat_id,
-                            &format!("Hello from bot. Got file with id: {:?}", file_id),
-                            Some(message_id),
-                        );
+                        let f = telegram_client.get_file(file_id).and_then(|x| {
+                            telegram_client.send_message(
+                                chat_id,
+                                &format!("Hello from bot. Got file with id: {:?}", x.file_id),
+                                Some(message_id),
+                            )
+                        });
                         then_process_message(f, |_| future::ok(Response::new(Body::empty())))
                     }),
                     None => Either::B(future::ok(Response::new(Body::empty()))),
