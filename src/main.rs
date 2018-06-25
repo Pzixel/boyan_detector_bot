@@ -144,7 +144,7 @@ fn echo(
                                     )
                                 }))
                             } else {
-                                Either::B(future::ok(Response::new(Body::empty())))
+                                Either::B(future::ok(()))
                             };
                             inner_f
                         });

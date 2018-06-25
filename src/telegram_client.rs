@@ -1,7 +1,5 @@
 use bytes::Bytes;
 use contract::*;
-use futures::future;
-use futures::future::Either;
 use futures::Future;
 use futures::Stream;
 use hyper;
@@ -102,22 +100,19 @@ impl TelegramClient {
         let result = self
             .send_internal(method, &url, body)
             .map_err(|e| TelegramClientError::HyperError(e))
-            .then(|result| match result {
-                Ok(response) => {
-                    let is_success = response.status().is_success();
-                    let result = response.into_body().concat2().then(move |result| {
-                        let chunk = result.map_err(|e| TelegramClientError::HyperError(e))?;
-                        if is_success {
-                            map(chunk)
-                        } else {
-                            let bytes = chunk.into_bytes();
-                            let text: String = String::from_utf8_lossy(&bytes).into_owned();
-                            Err(TelegramClientError::ConnectionError(text))
-                        }
-                    });
-                    Either::A(result)
-                }
-                Err(e) => Either::B(future::err(e)),
+            .and_then(|response| {
+                let is_success = response.status().is_success();
+                let result = response.into_body().concat2().then(move |result| {
+                    let chunk = result.map_err(|e| TelegramClientError::HyperError(e))?;
+                    if is_success {
+                        map(chunk)
+                    } else {
+                        let bytes = chunk.into_bytes();
+                        let text: String = String::from_utf8_lossy(&bytes).into_owned();
+                        Err(TelegramClientError::ConnectionError(text))
+                    }
+                });
+                result
             });
         result
     }
