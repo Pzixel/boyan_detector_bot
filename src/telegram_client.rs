@@ -1,7 +1,6 @@
-use bytes::Bytes;
 use contract::*;
-use future::Either;
 use futures::future;
+use futures::future::Either;
 use futures::Future;
 use futures::Stream;
 use hyper;
@@ -61,7 +60,7 @@ impl TelegramClient {
             "reply_to_message_id": reply_to_message_id
         });
         let json = value.to_string();
-        self.send_and_deserialize(Method::POST, &url, json.into())
+        self.send(Method::POST, &url, json.into(), |_| Ok(()))
     }
 
     pub fn get_file(&self, file_id: &str) -> impl Future<Item = File, Error = TelegramClientError> {
@@ -69,15 +68,15 @@ impl TelegramClient {
         self.send_and_deserialize(Method::GET, &url, Body::empty())
     }
 
-    pub fn download_file(&self, file_path: &str) -> impl Future<Item = Bytes, Error = hyper::Error> {
-        let url = format!("file/bot{}/{}", self.token, file_path);
-        self.send(Method::GET, &url, Body::empty()).and_then(|res| {
-            res.into_body()
-                .into_future()
-                .map(|(item, _)| item.unwrap().into_bytes())
-                .map_err(|(err, _)| err)
-        })
-    }
+    //    pub fn download_file(&self, file_path: &str) -> impl Future<Item = Bytes, Error = hyper::Error> {
+    //        let url = format!("file/bot{}/{}", self.token, file_path);
+    //        self.send(Method::GET, &url, Body::empty()).and_then(|res| {
+    //            res.into_body()
+    //                .into_future()
+    //                .map(|(item, _)| item.unwrap().into_bytes())
+    //                .map_err(|(err, _)| err)
+    //        })
+    //    }
 
     fn send_and_deserialize<T: DeserializeOwned>(
         &self,
@@ -85,16 +84,28 @@ impl TelegramClient {
         url: &str,
         body: Body,
     ) -> impl Future<Item = T, Error = TelegramClientError> {
+        self.send(method, url, body, |x| {
+            from_slice(x).map_err(|e| TelegramClientError::SerdeError(e))
+        })
+    }
+
+    fn send<T>(
+        &self,
+        method: Method,
+        url: &str,
+        body: Body,
+        map: impl Fn(&[u8]) -> Result<T, TelegramClientError>,
+    ) -> impl Future<Item = T, Error = TelegramClientError> {
         let result = self
-            .send(method, &url, body)
+            .send_internal(method, &url, body)
             .map_err(|e| TelegramClientError::HyperError(e))
             .then(|result| match result {
                 Ok(response) => {
                     let is_success = response.status().is_success();
                     let result = response.into_body().concat2().then(move |result| {
                         let chunk = result.map_err(|e| TelegramClientError::HyperError(e))?;
-                        if true {
-                            from_slice(chunk.as_ref()).map_err(|e| TelegramClientError::SerdeError(e))
+                        if is_success {
+                            map(chunk.as_ref())
                         } else {
                             let bytes = chunk.into_bytes();
                             let text: String = String::from_utf8_lossy(&bytes).into_owned();
@@ -108,7 +119,7 @@ impl TelegramClient {
         result
     }
 
-    fn send(&self, method: Method, url: &str, body: Body) -> ResponseFuture {
+    fn send_internal(&self, method: Method, url: &str, body: Body) -> ResponseFuture {
         let uri = format!("https://api.telegram.org/{}", url);
         let request = Request::builder()
             .method(method)

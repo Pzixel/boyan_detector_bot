@@ -128,7 +128,7 @@ fn echo(
                             &format!("Hello from bot. Got file with id: {:?}", file_id),
                             Some(message_id),
                         );
-                        then_process_message(f, || future::ok(Response::new(Body::empty())))
+                        then_process_message(f, |_| future::ok(Response::new(Body::empty())))
                     }),
                     None => Either::B(future::ok(Response::new(Body::empty()))),
                 }
@@ -146,15 +146,16 @@ fn echo(
 
 fn then_process_message<
     T,
-    F: Future<Item = T, Error = TelegramClientError>,
-    FO: Future<Item = Response<Body>, Error = hyper::Error>,
+    FutureIn: Future<Item = T, Error = TelegramClientError>,
+    FutureOut: Future<Item = Response<Body>, Error = hyper::Error>,
+    Func: Fn(T) -> FutureOut,
 >(
-    f: F,
-    func: impl Fn() -> FO,
+    f: FutureIn,
+    func: Func,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> {
     f.then(move |result| {
         let result = match result {
-            Ok(response) => Either::A(func()),
+            Ok(x) => Either::A(func(x)),
             Err(e) => {
                 error!("Error while processing: {}", e);
                 Either::B(future::ok(
