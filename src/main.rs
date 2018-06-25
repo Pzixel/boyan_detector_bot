@@ -129,19 +129,24 @@ fn echo(
                         let f = telegram_client.get_file(file_id).and_then(move |file| {
                             info!("Checking file {:?}", file);
 
-                            let file_path = file.file_path.clone().unwrap();
+                            let file_path = file.file_path.clone();
 
-                            telegram_client.download_file(&file_path).and_then(move |bytes| {
-                                telegram_client.send_message(
-                                    chat_id,
-                                    &format!(
-                                        "Hello from bot. Got file with id: {}. File length is {} bytes",
-                                        file.file_id,
-                                        bytes.len()
-                                    ),
-                                    Some(message_id),
-                                )
-                            })
+                            let inner_f = if let Some(file_path) = file_path {
+                                Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
+                                    telegram_client.send_message(
+                                        chat_id,
+                                        &format!(
+                                            "Hello from bot. Got file with id: {}. File length is {} bytes",
+                                            file.file_id,
+                                            bytes.len()
+                                        ),
+                                        Some(message_id),
+                                    )
+                                }))
+                            } else {
+                                Either::B(future::ok(Response::new(Body::empty())))
+                            };
+                            inner_f
                         });
                         f.then(move |result| {
                             let result = match result {
