@@ -31,22 +31,22 @@ impl<T: Clone> Image<T> {
     }
 }
 
-pub trait Database<T: Clone> {
+pub trait Storage<T: Clone> {
     fn save_image(&mut self, image: &Image<T>);
     fn load_images(&self) -> Vec<Image<T>>;
 }
 
-pub struct InMemoryDatabase<T: Clone> {
+pub struct InMemoryStorage<T: Clone> {
     images: Vec<Image<T>>,
 }
 
-impl<T: Clone> InMemoryDatabase<T> {
+impl<T: Clone> InMemoryStorage<T> {
     pub fn new() -> Self {
         Self { images: Vec::new() }
     }
 }
 
-impl<T: Clone> Database<T> for InMemoryDatabase<T> {
+impl<T: Clone> Storage<T> for InMemoryStorage<T> {
     fn save_image(&mut self, image: &Image<T>) {
         self.images.push(image.clone());
     }
@@ -72,23 +72,31 @@ impl<T: Clone + PartialEq> PartialEq for ImageVariant<T> {
     }
 }
 
-pub struct Storage<T: Clone, D: Database<T>> {
+pub struct ImageDb<T: Clone, D: Storage<T>> {
     database: D,
     hasher: ColorMomentHash,
     images: Vec<(Mat, Image<T>)>,
 }
 
-impl<T: Clone, D: Database<T>> Storage<T, D> {
+impl<T: Clone, D: Storage<T>> ImageDb<T, D> {
     pub fn new(database: D) -> Self {
+        let hasher = ColorMomentHash::new();
+        let images = database
+            .load_images()
+            .into_iter()
+            .map(|image| {
+                let mat = Mat::image_decode(&image.bytes, ImageReadMode::Color);
+                let mat = hasher.compute(&mat);
+                (mat, image)
+            })
+            .collect::<Vec<_>>();
         Self {
             database,
-            hasher: ColorMomentHash::new(),
-            images: Vec::new(),
+            hasher: hasher,
+            images: images,
         }
     }
-}
 
-impl<T: Clone, D: Database<T>> Storage<T, D> {
     pub fn save_image_if_new(&mut self, image: Image<T>) -> ImageVariant<T> {
         const DIFF: f64 = 1.0;
 
@@ -110,6 +118,10 @@ impl<T: Clone, D: Database<T>> Storage<T, D> {
         self.images.push((mat, image));
         ImageVariant::New
     }
+
+    pub fn image_count(&self) -> usize {
+        self.images.len()
+    }
 }
 
 pub struct FileStorage<T> {
@@ -126,7 +138,7 @@ impl<T> FileStorage<T> {
     }
 }
 
-impl<T: Clone + serde::Serialize + serde::de::DeserializeOwned> Database<T> for FileStorage<T> {
+impl<T: Clone + serde::Serialize + serde::de::DeserializeOwned> Storage<T> for FileStorage<T> {
     fn save_image(&mut self, image: &Image<T>) {
         let path = self.path.join(&image.file_id);
         let file = File::create(path).unwrap();
