@@ -140,15 +140,14 @@ fn echo(
                     .and_then(move |file| {
                         info!("Checking file {:?}", file);
 
-                        let file_path = file.file_path.clone();
-
-                        if let Some(file_path) = get_file_path_if_processable(file_path) {
+                        let file_id = file.file_id;
+                        if let Some(file_path) = get_file_path_if_processable(file.file_path) {
                             Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
                                 telegram_client.send_message(
                                     chat_id,
                                     &format!(
                                         "Hello from bot. Got file with id: {}. File length is {} bytes",
-                                        file.file_id,
+                                        file_id,
                                         bytes.len()
                                     ),
                                     Some(message_id),
