@@ -40,6 +40,12 @@ use tokio::runtime::Runtime;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
+impl Metatada for File {
+    fn file_id(&self) -> &str {
+        &self.file_id
+    }
+}
+
 fn main() {
     log4rs::init_file("log4rs.toml", Default::default()).unwrap();
     std::fs::create_dir_all(STORAGE_DIR_NAME).unwrap();
@@ -80,8 +86,6 @@ fn main() {
 fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
     let telegram_client = TelegramClient::new(bot_token.into());
-    let storage = FileStorage::<File>::new(STORAGE_DIR_NAME.into());
-    let db = ImageDb::new()
 
     let mut runtime = Runtime::new().unwrap();
     let me = runtime.block_on(telegram_client.get_me()).unwrap();
@@ -102,6 +106,9 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let server = Server::bind(&addr)
         .serve(move || {
             let telegram_client = telegram_client.clone();
+            let storage = FileStorage::<File>::new(STORAGE_DIR_NAME.into());
+            let db = ImageDb::new(storage);
+
             service_fn(move |x| echo(x, telegram_client.clone()))
         })
         .map_err(|e| error!("server error: {}", e));
