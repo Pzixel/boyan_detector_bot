@@ -14,39 +14,38 @@ use std::fs::File;
 use std::marker::PhantomData;
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Image<T: Clone> {
-    bytes: Vec<u8>,
-    file_id: String,
-    metadata: T,
+pub trait Metatada: Clone {
+    fn file_id(&self) -> &str;
 }
 
-impl<T: Clone> Image<T> {
-    pub fn new(bytes: Vec<u8>, file_id: String, metadata: T) -> Self {
-        Self {
-            bytes,
-            file_id,
-            metadata,
-        }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Image<T: Metatada> {
+    pub bytes: Vec<u8>,
+    pub metadata: T,
+}
+
+impl<T: Metatada> Image<T> {
+    pub fn new(bytes: Vec<u8>, metadata: T) -> Self {
+        Self { bytes, metadata }
     }
 }
 
-pub trait Storage<T: Clone> {
+pub trait Storage<T: Metatada> {
     fn save_image(&mut self, image: &Image<T>);
     fn load_images(&self) -> Vec<Image<T>>;
 }
 
-pub struct InMemoryStorage<T: Clone> {
+pub struct InMemoryStorage<T: Metatada> {
     images: Vec<Image<T>>,
 }
 
-impl<T: Clone> InMemoryStorage<T> {
+impl<T: Metatada> InMemoryStorage<T> {
     pub fn new() -> Self {
         Self { images: Vec::new() }
     }
 }
 
-impl<T: Clone> Storage<T> for InMemoryStorage<T> {
+impl<T: Metatada> Storage<T> for InMemoryStorage<T> {
     fn save_image(&mut self, image: &Image<T>) {
         self.images.push(image.clone());
     }
@@ -57,12 +56,12 @@ impl<T: Clone> Storage<T> for InMemoryStorage<T> {
 }
 
 #[derive(Debug, Clone)]
-pub enum ImageVariant<T: Clone> {
+pub enum ImageVariant<T: Metatada> {
     New,
     AlreadyExists(T),
 }
 
-impl<T: Clone + PartialEq> PartialEq for ImageVariant<T> {
+impl<T: Metatada + PartialEq> PartialEq for ImageVariant<T> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (ImageVariant::New, ImageVariant::New) => true,
@@ -72,13 +71,13 @@ impl<T: Clone + PartialEq> PartialEq for ImageVariant<T> {
     }
 }
 
-pub struct ImageDb<T: Clone, D: Storage<T>> {
+pub struct ImageDb<T: Metatada, D: Storage<T>> {
     database: D,
     hasher: ColorMomentHash,
     images: Vec<(Mat, Image<T>)>,
 }
 
-impl<T: Clone, D: Storage<T>> ImageDb<T, D> {
+impl<T: Metatada, D: Storage<T>> ImageDb<T, D> {
     pub fn new(database: D) -> Self {
         let hasher = ColorMomentHash::new();
         let images = database
@@ -138,9 +137,9 @@ impl<T> FileStorage<T> {
     }
 }
 
-impl<T: Clone + serde::Serialize + serde::de::DeserializeOwned> Storage<T> for FileStorage<T> {
+impl<T: Metatada + serde::Serialize + serde::de::DeserializeOwned> Storage<T> for FileStorage<T> {
     fn save_image(&mut self, image: &Image<T>) {
-        let path = self.path.join(&image.file_id);
+        let path = self.path.join(image.metadata.file_id());
         let file = File::create(path).unwrap();
         serde_json::to_writer(file, image).unwrap();
     }

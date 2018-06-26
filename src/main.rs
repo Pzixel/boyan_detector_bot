@@ -80,7 +80,8 @@ fn main() {
 fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let addr: SocketAddr = listening_address.parse().unwrap();
     let telegram_client = TelegramClient::new(bot_token.into());
-    let _storage = FileStorage::<File>::new(STORAGE_DIR_NAME.into());
+    let storage = FileStorage::<File>::new(STORAGE_DIR_NAME.into());
+    let db = ImageDb::new()
 
     let mut runtime = Runtime::new().unwrap();
     let me = runtime.block_on(telegram_client.get_me()).unwrap();
