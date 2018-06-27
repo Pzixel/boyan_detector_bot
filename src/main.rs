@@ -169,7 +169,7 @@ fn handle_request(
             .and_then(move |(user, file_id, chat_id, message_id)| {
                 telegram_client.get_file(&file_id)
                     .and_then(move |file| {
-                        info!("Checking file {:?}", file);
+                        info!("Checking file {:?} from {:?}. ChatId is {}. MessageId is {}", file, user, chat_id, message_id);
 
                         if let Some((file_path, ext)) = get_file_path_if_processable(file.file_path) {
                             Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
@@ -180,16 +180,28 @@ fn handle_request(
 
                                 if let ImageVariant::AlreadyExists(metadata) = db.save_image_if_new(image) {
                                     let details = user.username.map(|x| format!(" ({})", x)).unwrap_or_else(|| "".to_string());
+                                    let text = format!(
+                                        "Похоже, что [{}{}](tg://user?id={}) боян добавил.",
+                                        user.first_name,
+                                        details,
+                                        user.id
+                                    );
                                     Either::A(telegram_client.send_message(
-                                        chat_id,
-                                        &format!(
-                                            "Похоже, что [{}{}](tg://user?id={}) боян добавил. Линк на оригинал выше.",
-                                            user.first_name,
-                                            details,
-                                            user.id
-                                        ),
-                                        Some(metadata.message_id),
-                                    ))
+                                            chat_id,
+                                            &format!("{} Линк на оригинал выше.", text),
+                                            Some(metadata.message_id),
+                                        ).then(move |res| {
+                                            warn!("Failed to add reply, sending message without reply");
+                                            match res {
+                                                Ok(x) => Either::B(future::ok(x)),
+                                                Err(_) => Either::A(telegram_client.send_message(
+                                                    chat_id,
+                                                    &format!("{} Линка на оригинал не будет.", text),
+                                                    None,
+                                                ))
+                                            }
+                                        })
+                                    )
                                 }
                                 else {
                                     info!("New image! Congrats, user {}", user.first_name);
@@ -210,7 +222,10 @@ fn handle_request(
                     })
             })
             // ...and here we unify both paths
-            .map(|_| Response::new(Body::empty()))
+            .map(|_| {
+                info!("Request has been processed successfully");
+                Response::new(Body::empty())
+            })
             .or_else(Ok)
     })
 }
