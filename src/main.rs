@@ -22,7 +22,7 @@ mod contract;
 mod telegram_client;
 
 use clap::{App, Arg};
-use contract::{File, Update};
+use contract::Update;
 use futures::future;
 use futures::future::Either;
 use futures::IntoFuture;
@@ -39,7 +39,13 @@ use tokio::runtime::Runtime;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
-impl Metatada for File {
+#[derive(Debug, Clone, Deserialize, Serialize)]
+struct ImageMetadata {
+    file_id: String,
+    message_id: i64,
+}
+
+impl Metatada for ImageMetadata {
     fn file_id(&self) -> &str {
         &self.file_id
     }
@@ -102,7 +108,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     info!("Webhook has been set on {}", external_address);
 
     let telegram_client = Arc::new(telegram_client);
-    let storage = FileStorage::<File>::new(STORAGE_DIR_NAME.into());
+    let storage = FileStorage::<ImageMetadata>::new(STORAGE_DIR_NAME.into());
     let db = ImageDb::new(storage);
     let db = Arc::new(Mutex::new(db));
 
@@ -122,7 +128,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
 fn handle_request(
     req: Request<Body>,
     telegram_client: Arc<TelegramClient>,
-    db: Arc<Mutex<ImageDb<File, FileStorage<File>>>>,
+    db: Arc<Mutex<ImageDb<ImageMetadata, FileStorage<ImageMetadata>>>>,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
     req.into_body().concat2().and_then(move |chunk| {
         from_slice::<Update>(chunk.as_ref())
@@ -134,19 +140,19 @@ fn handle_request(
             .and_then(|update| {
                 let chat_id = update.message.chat.id;
                 let message_id = update.message.message_id;
-                let file_id = match (&update.message.document, &update.message.photo) {
-                    (Some(ref document), _) => Some(&document.file_id),
-                    (_, Some(ref photo)) => photo
+                let processing_info = match (&update.message.from.and_then(|x| x.username), &update.message.document, &update.message.photo) {
+                    (Some(ref from), Some(ref document), _) => Some((from, &document.file_id)),
+                    (Some(ref from), _, Some(ref photo)) => photo
                         .iter()
                         .max_by_key(|x| x.file_size.unwrap_or(0))
-                        .map(|x| &x.file_id),
+                        .map(|x| (from, &x.file_id)),
                     _ => None,
                 };
-                file_id
-                    .map(|f| (f.clone(), chat_id, message_id))
+                processing_info
+                    .map(move |(user, file_id)| (user.clone(), file_id.clone(), chat_id, message_id))
                     .ok_or_else(|| Response::new(Body::empty()))
             })
-            .and_then(move |(file_id, chat_id, message_id)| {
+            .and_then(move |(user, file_id, chat_id, message_id)| {
                 telegram_client.get_file(&file_id)
                     .and_then(move |file| {
                         info!("Checking file {:?}", file);
@@ -157,7 +163,8 @@ fn handle_request(
                                 telegram_client.send_message(
                                     chat_id,
                                     &format!(
-                                        "Hello from bot. Got file with id: {}. File length is {} bytes",
+                                        "@{}, hello from bot. Got file with id: {}. File length is {} bytes",
+                                        user,
                                         file_id,
                                         bytes.len()
                                     ),
@@ -187,7 +194,7 @@ fn get_file_path_if_processable(file_path: Option<String>) -> Option<String> {
     if let Some(file_path) = file_path {
         if let Some(ext) = file_path.rsplit('.').next().map(|x| x.to_string()) {
             let ext = ext.to_lowercase();
-            if ext == "jpg" || ext == "png" {
+            if ext == "png" || ext == "jpg" || ext == "jpeg" {
                 return Some(file_path);
             }
         }

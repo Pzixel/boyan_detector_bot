@@ -54,7 +54,8 @@ impl TelegramClient {
         let value = json!({
             "chat_id": chat_id,
             "text": text,
-            "reply_to_message_id": reply_to_message_id
+            "reply_to_message_id": reply_to_message_id,
+            "parse_mode": "Markdown"
         });
         let json = value.to_string();
         self.send(Method::POST, &url, json.into(), |_| Ok(()))

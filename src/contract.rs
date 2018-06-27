@@ -46,7 +46,7 @@ pub struct Message {
     pub document: Option<Document>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct File {
     pub file_id: String,
     pub file_size: Option<i64>,
