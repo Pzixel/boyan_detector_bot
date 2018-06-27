@@ -7,4 +7,4 @@ authors = ["Psilon <pzixel@gmail.com>"]
 serde = "1"
 serde_derive = "1"
 serde_json = "1"
-cv = { git = "https://github.com/nebgnahz/cv-rs.git" }
+cv = { git = "https://github.com/nebgnahz/cv-rs.git", branch = "feature/multithreaded_hash" }

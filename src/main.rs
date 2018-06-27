@@ -34,7 +34,7 @@ use hyper::{Body, Request, Response, Server, StatusCode};
 use imagedb::*;
 use serde_json::from_slice;
 use std::net::SocketAddr;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use telegram_client::*;
 use tokio::runtime::Runtime;
 
@@ -103,11 +103,14 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     info!("Webhook has been set on {}", external_address);
 
     let telegram_client = Arc::new(telegram_client);
+    let storage = FileStorage::<File>::new(STORAGE_DIR_NAME.into());
+    let db = ImageDb::new(storage);
+    let db = Arc::new(Mutex::new(db));
+
     let server = Server::bind(&addr)
         .serve(move || {
             let telegram_client = telegram_client.clone();
-            let storage = FileStorage::<File>::new(STORAGE_DIR_NAME.into());
-            let db = ImageDb::new(storage);
+            let db = db.clone();
 
             service_fn(move |x| echo(x, telegram_client.clone()))
         })
