@@ -74,7 +74,7 @@ impl<T: Metatada + PartialEq> PartialEq for ImageVariant<T> {
 pub struct ImageDb<T: Metatada, D: Storage<T>> {
     database: D,
     hasher: ColorMomentHash,
-    images: Vec<(Mat, Image<T>)>,
+    images: Vec<(Mat, T)>,
 }
 
 impl<T: Metatada, D: Storage<T>> ImageDb<T, D> {
@@ -86,7 +86,7 @@ impl<T: Metatada, D: Storage<T>> ImageDb<T, D> {
             .map(|image| {
                 let mat = Mat::image_decode(&image.bytes, ImageReadMode::Color);
                 let mat = hasher.compute(&mat);
-                (mat, image)
+                (mat, image.metadata)
             })
             .collect::<Vec<_>>();
         Self {
@@ -103,18 +103,18 @@ impl<T: Metatada, D: Storage<T>> ImageDb<T, D> {
         let mat = self.hasher.compute(&mat);
         let mut last_diff = std::f64::INFINITY;
         let mut result: Option<T> = None;
-        for &(ref image, ref d) in self.images.iter() {
+        for &(ref image, ref metadata) in self.images.iter() {
             let diff = self.hasher.compare(&mat, &image);
             if diff < last_diff {
                 last_diff = diff;
-                result = Some(d.metadata.clone());
+                result = Some(metadata.clone());
             }
         }
         if last_diff < DIFF {
             return ImageVariant::AlreadyExists(result.unwrap());
         }
         self.database.save_image(&image);
-        self.images.push((mat, image));
+        self.images.push((mat, image.metadata));
         ImageVariant::New
     }
 

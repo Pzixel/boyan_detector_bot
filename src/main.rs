@@ -112,7 +112,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
             let telegram_client = telegram_client.clone();
             let db = db.clone();
 
-            service_fn(move |x| echo(x, telegram_client.clone()))
+            service_fn(move |x| handle_request(x, telegram_client.clone(), db.clone()))
         })
         .map_err(|e| error!("server error: {}", e));
 
@@ -120,9 +120,10 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     rt::run(server);
 }
 
-fn echo(
+fn handle_request(
     req: Request<Body>,
     telegram_client: Arc<TelegramClient>,
+    db: Arc<Mutex<ImageDb<File, FileStorage<File>>>>,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
     req.into_body().concat2().and_then(move |chunk| {
         from_slice::<Update>(chunk.as_ref())
