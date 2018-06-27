@@ -3,3 +3,4 @@
 /.idea/
 **/*.rs.bk
 imagedb/Cargo.lock
+/storage
