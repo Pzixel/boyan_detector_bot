@@ -1,10 +1,9 @@
 [package]
 name = "imagedb"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Psilon <pzixel@gmail.com>"]
 
 [dependencies]
-serde = "1"
-serde_derive = "1"
-serde_json = "1"
+serde = "1.0.67"
+serde_json = "1.0.22"
 cv = { git = "https://github.com/nebgnahz/cv-rs.git", branch = "feature/multithreaded_hash" }

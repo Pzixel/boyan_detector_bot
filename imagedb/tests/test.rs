@@ -16,8 +16,8 @@ impl TestMetadata {
     }
 }
 
-impl Metatada for TestMetadata {
-    fn file_id(&self) -> &str {
+impl Metadata for TestMetadata {
+    fn file_name(&self) -> &str {
         self.file_id
     }
 }

@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate serde_derive;
-
 extern crate cv;
 extern crate serde;
 extern crate serde_json;
@@ -11,41 +8,42 @@ use cv::*;
 use std::cmp::PartialEq;
 use std::fs;
 use std::fs::File;
+use std::io::{Read, Write};
 use std::marker::PhantomData;
 use std::path::PathBuf;
 
-pub trait Metatada: Clone {
-    fn file_id(&self) -> &str;
+pub trait Metadata: Clone {
+    fn file_name(&self) -> &str;
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Image<T: Metatada> {
+#[derive(Debug, Clone)]
+pub struct Image<T: Metadata> {
     pub bytes: Vec<u8>,
     pub metadata: T,
 }
 
-impl<T: Metatada> Image<T> {
+impl<T: Metadata> Image<T> {
     pub fn new(bytes: Vec<u8>, metadata: T) -> Self {
         Self { bytes, metadata }
     }
 }
 
-pub trait Storage<T: Metatada> {
+pub trait Storage<T: Metadata> {
     fn save_image(&mut self, image: &Image<T>);
     fn load_images(&self) -> Vec<Image<T>>;
 }
 
-pub struct InMemoryStorage<T: Metatada> {
+pub struct InMemoryStorage<T: Metadata> {
     images: Vec<Image<T>>,
 }
 
-impl<T: Metatada> InMemoryStorage<T> {
+impl<T: Metadata> InMemoryStorage<T> {
     pub fn new() -> Self {
         Self { images: Vec::new() }
     }
 }
 
-impl<T: Metatada> Storage<T> for InMemoryStorage<T> {
+impl<T: Metadata> Storage<T> for InMemoryStorage<T> {
     fn save_image(&mut self, image: &Image<T>) {
         self.images.push(image.clone());
     }
@@ -56,12 +54,12 @@ impl<T: Metatada> Storage<T> for InMemoryStorage<T> {
 }
 
 #[derive(Debug, Clone)]
-pub enum ImageVariant<T: Metatada> {
+pub enum ImageVariant<T: Metadata> {
     New,
     AlreadyExists(T),
 }
 
-impl<T: Metatada + PartialEq> PartialEq for ImageVariant<T> {
+impl<T: Metadata + PartialEq> PartialEq for ImageVariant<T> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (ImageVariant::New, ImageVariant::New) => true,
@@ -71,13 +69,13 @@ impl<T: Metatada + PartialEq> PartialEq for ImageVariant<T> {
     }
 }
 
-pub struct ImageDb<T: Metatada, D: Storage<T>> {
+pub struct ImageDb<T: Metadata, D: Storage<T>> {
     database: D,
     hasher: ColorMomentHash,
     images: Vec<(Mat, T)>,
 }
 
-impl<T: Metatada, D: Storage<T>> ImageDb<T, D> {
+impl<T: Metadata, D: Storage<T>> ImageDb<T, D> {
     pub fn new(database: D) -> Self {
         let hasher = ColorMomentHash::new();
         let images = database
@@ -137,20 +135,30 @@ impl<T> FileStorage<T> {
     }
 }
 
-impl<T: Metatada + serde::Serialize + serde::de::DeserializeOwned> Storage<T> for FileStorage<T> {
+impl<T: Metadata + serde::Serialize + serde::de::DeserializeOwned> Storage<T> for FileStorage<T> {
     fn save_image(&mut self, image: &Image<T>) {
-        let path = self.path.join(image.metadata.file_id());
-        let file = File::create(path).unwrap();
-        serde_json::to_writer(file, image).unwrap();
+        let path = self.path.join(image.metadata.file_name());
+
+        let mut binary_file = File::create(&path).unwrap();
+        binary_file.write_all(&image.bytes).unwrap();
+
+        let json_file = File::create(path.with_extension("json")).unwrap();
+        serde_json::to_writer(json_file, &image.metadata).unwrap();
     }
 
     fn load_images(&self) -> Vec<Image<T>> {
         let entries = fs::read_dir(&self.path).unwrap();
         entries
-            .map(|entry| {
-                let reader = File::open(entry.unwrap().path()).unwrap();
-                let result: Image<T> = serde_json::from_reader(reader).unwrap();
-                result
+            .map(|e| e.unwrap().path())
+            .filter(|e| e.extension().and_then(|x| x.to_str()) != Some("json"))
+            .map(|path| {
+                let mut binary_reader = File::open(&path).unwrap();
+                let mut bytes = Vec::with_capacity(1000000);
+                binary_reader.read_to_end(&mut bytes).unwrap();
+
+                let reader = File::open(path.with_extension("json")).unwrap();
+                let metadata: T = serde_json::from_reader(reader).unwrap();
+                Image::new(bytes, metadata)
             })
             .collect()
     }

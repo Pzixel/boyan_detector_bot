@@ -41,24 +41,24 @@ const STORAGE_DIR_NAME: &str = "storage";
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct ImageMetadata {
-    file_id: String,
+    file_name: String,
     user_id: i64,
     message_id: i64,
 }
 
 impl ImageMetadata {
-    pub fn new(file_id: String, user_id: i64, message_id: i64) -> Self {
+    pub fn new(file_name: String, user_id: i64, message_id: i64) -> Self {
         Self {
-            file_id,
+            file_name,
             user_id,
             message_id,
         }
     }
 }
 
-impl Metatada for ImageMetadata {
-    fn file_id(&self) -> &str {
-        &self.file_id
+impl Metadata for ImageMetadata {
+    fn file_name(&self) -> &str {
+        &self.file_name
     }
 }
 
@@ -171,9 +171,10 @@ fn handle_request(
                     .and_then(move |file| {
                         info!("Checking file {:?}", file);
 
-                        if let Some(file_path) = get_file_path_if_processable(file.file_path) {
+                        if let Some((file_path, ext)) = get_file_path_if_processable(file.file_path) {
                             Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
-                                let image = Image::new(bytes.into_iter().collect(), ImageMetadata::new(file_id, user_id, message_id));
+                                let image = Image::new(bytes.into_iter().collect(),
+                                                       ImageMetadata::new(format!("{}.{}", file_id, ext), user_id, message_id));
 
                                 let mut db = db.lock().unwrap();
 
@@ -211,12 +212,12 @@ fn handle_request(
     })
 }
 
-fn get_file_path_if_processable(file_path: Option<String>) -> Option<String> {
+fn get_file_path_if_processable(file_path: Option<String>) -> Option<(String, String)> {
     if let Some(file_path) = file_path {
         if let Some(ext) = file_path.rsplit('.').next().map(|x| x.to_string()) {
             let ext = ext.to_lowercase();
             if ext == "png" || ext == "jpg" || ext == "jpeg" {
-                return Some(file_path);
+                return Some((file_path, ext));
             }
         }
     }
