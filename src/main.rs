@@ -42,7 +42,18 @@ const STORAGE_DIR_NAME: &str = "storage";
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct ImageMetadata {
     file_id: String,
+    user_id: i64,
     message_id: i64,
+}
+
+impl ImageMetadata {
+    pub fn new(file_id: String, user_id: i64, message_id: i64) -> Self {
+        Self {
+            file_id,
+            user_id,
+            message_id,
+        }
+    }
 }
 
 impl Metatada for ImageMetadata {
@@ -162,14 +173,24 @@ fn handle_request(
 
                         if let Some(file_path) = get_file_path_if_processable(file.file_path) {
                             Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
-                                telegram_client.send_message(
-                                    chat_id,
-                                    &format!(
-                                        "Похоже, что [братишка](tg://user?id={}) боян добавил. Линк на оригинал выше.",
-                                        user_id
-                                    ),
-                                    Some(message_id),
-                                )
+                                let image = Image::new(bytes.into_iter().collect(), ImageMetadata::new(file_id, user_id, message_id));
+
+                                let mut db = db.lock().unwrap();
+
+                                if let ImageVariant::AlreadyExists(metadata) = db.save_image_if_new(image) {
+                                    Either::A(telegram_client.send_message(
+                                        chat_id,
+                                        &format!(
+                                            "Похоже, что [братишка](tg://user?id={}) боян добавил. Линк на оригинал выше.",
+                                            metadata.user_id
+                                        ),
+                                        Some(metadata.message_id),
+                                    ))
+                                }
+                                else {
+                                    info!("New image! Congrats, user {}", user_id);
+                                    Either::B(future::ok(()))
+                                }
                             }))
                         } else {
                             info!("Skipping unsupported extension");
