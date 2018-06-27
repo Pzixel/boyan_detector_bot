@@ -70,6 +70,7 @@
 .[tT][eE][xX][tT][iI][lL][eE]                                   text=auto diff merge
 .[pP][hH][pP]                                                   text=auto diff merge
 .[lL][eE][sS][sS]                                               text=auto diff merge
+.[tt][oO][mM][lL]                                               text=auto diff merge
 
 nLog.config.template                                            text=auto diff merge
         
