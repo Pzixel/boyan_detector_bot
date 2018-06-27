@@ -36,7 +36,11 @@ impl TelegramClient {
 
     pub fn set_web_hook(&self, address: &str) -> impl Future<Item = bool, Error = TelegramClientError> {
         let url = format!("bot{}/setWebhook?url={}/update", self.token, address);
-        self.send_and_deserialize(Method::POST, &url, Body::empty())
+        let value = json!({
+            "allowed_updates": ["message"],
+        });
+        let json = value.to_string();
+        self.send_and_deserialize(Method::POST, &url, json.into())
     }
 
     pub fn get_me(&self) -> impl Future<Item = User, Error = TelegramClientError> {
