@@ -151,7 +151,7 @@ fn handle_request(
             .and_then(|update| {
                 let chat_id = update.message.chat.id;
                 let message_id = update.message.message_id;
-                let processing_info = match (&update.message.from.map(|x| x.id), &update.message.document, &update.message.photo) {
+                let processing_info = match (&update.message.from, &update.message.document, &update.message.photo) {
                     (Some(ref from), Some(ref document), _) => Some((from, &document.file_id)),
                     (Some(ref from), _, Some(ref photo)) => photo
                         .iter()
@@ -160,13 +160,13 @@ fn handle_request(
                     _ => None,
                 };
                 processing_info
-                    .map(move |(user_id, file_id)| (user_id.clone(), file_id.clone(), chat_id, message_id))
+                    .map(move |(user, file_id)| (user.clone(), file_id.clone(), chat_id, message_id))
                     .ok_or_else(|| {
                         info!("There is no sender or images. Skipping");
                         Response::new(Body::empty())
                     })
             })
-            .and_then(move |(user_id, file_id, chat_id, message_id)| {
+            .and_then(move |(user, file_id, chat_id, message_id)| {
                 telegram_client.get_file(&file_id)
                     .and_then(move |file| {
                         info!("Checking file {:?}", file);
@@ -174,22 +174,25 @@ fn handle_request(
                         if let Some((file_path, ext)) = get_file_path_if_processable(file.file_path) {
                             Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
                                 let image = Image::new(bytes.into_iter().collect(),
-                                                       ImageMetadata::new(format!("{}.{}", file_id, ext), user_id, message_id));
+                                                       ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id));
 
                                 let mut db = db.lock().unwrap();
 
                                 if let ImageVariant::AlreadyExists(metadata) = db.save_image_if_new(image) {
+                                    let details = user.username.map(|x| format!(" ({})", x)).unwrap_or_else(|| "".to_string());
                                     Either::A(telegram_client.send_message(
                                         chat_id,
                                         &format!(
-                                            "Похоже, что [братишка](tg://user?id={}) боян добавил. Линк на оригинал выше.",
-                                            metadata.user_id
+                                            "Похоже, что [{}{}](tg://user?id={}) боян добавил. Линк на оригинал выше.",
+                                            user.first_name,
+                                            details,
+                                            user.id
                                         ),
                                         Some(metadata.message_id),
                                     ))
                                 }
                                 else {
-                                    info!("New image! Congrats, user {}", user_id);
+                                    info!("New image! Congrats, user {}", user.first_name);
                                     Either::B(future::ok(()))
                                 }
                             }))
