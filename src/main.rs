@@ -32,7 +32,9 @@ use hyper::service::service_fn;
 use hyper::{Body, Request, Response, Server, StatusCode};
 use imagedb::*;
 use serde_json::from_slice;
+use std::collections::HashMap;
 use std::net::SocketAddr;
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use telegram_client::*;
 use tokio::runtime::Runtime;
@@ -74,24 +76,21 @@ fn main() {
                 .help("Sets the bot token to use")
                 .takes_value(true)
                 .required(true),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("address")
                 .short("a")
                 .long("address")
                 .help("Sets the address where webhook sends updates")
                 .takes_value(true)
                 .required(true),
-        )
-        .arg(
+        ).arg(
             Arg::with_name("externalAddress")
                 .short("e")
                 .long("externalAddress")
                 .help("Sets the external address where webhook should be setted up")
                 .takes_value(true)
                 .required(true),
-        )
-        .get_matches();
+        ).get_matches();
 
     let bot_token = matches.value_of("token").unwrap();
     let address = matches.value_of("address").unwrap();
@@ -119,18 +118,16 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     info!("Webhook has been set on {}", external_address);
 
     let telegram_client = Arc::new(telegram_client);
-    let storage = FileStorage::<ImageMetadata>::new(STORAGE_DIR_NAME.into());
-    let db = ImageDb::new(storage);
-    let db = Arc::new(Mutex::new(db));
+    let dbs = HashMap::new();
+    let dbs = Arc::new(Mutex::new(dbs));
 
     let server = Server::bind(&addr)
         .serve(move || {
             let telegram_client = telegram_client.clone();
-            let db = db.clone();
+            let dbs = dbs.clone();
 
-            service_fn(move |x| handle_request(x, telegram_client.clone(), db.clone()))
-        })
-        .map_err(|e| error!("server error: {}", e));
+            service_fn(move |x| handle_request(x, telegram_client.clone(), dbs.clone()))
+        }).map_err(|e| error!("server error: {}", e));
 
     info!("Listening on http://{}", addr);
     rt::run(server);
@@ -139,7 +136,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
 fn handle_request(
     req: Request<Body>,
     telegram_client: Arc<TelegramClient>,
-    db: Arc<Mutex<ImageDb<ImageMetadata, FileStorage<ImageMetadata>>>>,
+    dbs: Arc<Mutex<HashMap<i64, ImageDb<ImageMetadata, FileStorage<ImageMetadata>>>>>,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
     req.into_body().concat2().and_then(move |chunk| {
         from_slice::<Update>(chunk.as_ref())
@@ -176,7 +173,13 @@ fn handle_request(
                                 let image = Image::new(bytes.into_iter().collect(),
                                                        ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id));
 
-                                let mut db = db.lock().unwrap();
+                                let mut db = {
+                                    let mut dbs = dbs.lock().unwrap();
+                                    dbs.entry(chat_id).or_insert_with(|| {
+                                        let storage = FileStorage::<ImageMetadata>::new(Path::new(STORAGE_DIR_NAME).join(format!("{}", chat_id)));
+                                        ImageDb::new(storage)
+                                    })
+                                };
 
                                 if let ImageVariant::AlreadyExists(metadata) = db.save_image_if_new(image) {
                                     let details = user.username.map(|x| format!(" ({})", x)).unwrap_or_else(|| "".to_string());
