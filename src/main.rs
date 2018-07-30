@@ -136,7 +136,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
 fn handle_request(
     req: Request<Body>,
     telegram_client: Arc<TelegramClient>,
-    dbs: Arc<Mutex<HashMap<i64, ImageDb<ImageMetadata, FileStorage<ImageMetadata>>>>>,
+    dbs: Arc<Mutex<HashMap<i64, Arc<Mutex<ImageDb<ImageMetadata, FileStorage<ImageMetadata>>>>>>>,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
     req.into_body().concat2().and_then(move |chunk| {
         from_slice::<Update>(chunk.as_ref())
@@ -173,13 +173,15 @@ fn handle_request(
                                 let image = Image::new(bytes.into_iter().collect(),
                                                        ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id));
 
-                                let mut db = {
+                                let db = {
                                     let mut dbs = dbs.lock().unwrap();
                                     dbs.entry(chat_id).or_insert_with(|| {
                                         let storage = FileStorage::<ImageMetadata>::new(Path::new(STORAGE_DIR_NAME).join(format!("{}", chat_id)));
-                                        ImageDb::new(storage)
-                                    })
+                                        Arc::new(Mutex::new(ImageDb::new(storage)))
+                                    }).clone()
                                 };
+
+                                let mut db = db.lock().unwrap();
 
                                 if let ImageVariant::AlreadyExists(metadata) = db.save_image_if_new(image) {
                                     let details = user.username.map(|x| format!(" ({})", x)).unwrap_or_else(|| "".to_string());
