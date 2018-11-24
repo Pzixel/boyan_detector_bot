@@ -1,19 +1,6 @@
 use hyper;
 
 use log4rs;
-#[macro_use]
-extern crate log;
-
-#[macro_use]
-extern crate serde_derive;
-
-#[macro_use]
-extern crate serde_json;
-
-#[macro_use]
-extern crate failure;
-
-
 
 mod contract;
 mod telegram_client;
@@ -33,6 +20,8 @@ use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use crate::telegram_client::*;
 use tokio::runtime::Runtime;
+use serde_derive::{Serialize, Deserialize};
+use log::{info, warn, error};
 
 const STORAGE_DIR_NAME: &str = "storage";
 

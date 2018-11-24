@@ -10,6 +10,8 @@ use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 use serde_json::from_slice;
 use serde_json::Error as SerdeError;
+use serde_json::json;
+use failure::Fail;
 
 #[derive(Debug, Fail)]
 /// Custom errors that may happen during calls
