@@ -5,8 +5,9 @@ use log4rs;
 mod contract;
 mod telegram_client;
 
-use clap::{App, Arg};
 use crate::contract::Update;
+use crate::telegram_client::*;
+use clap::{App, Arg};
 use futures::future;
 use futures::future::Either;
 use futures::IntoFuture;
@@ -15,13 +16,12 @@ use hyper::rt::{self, Future};
 use hyper::service::service_fn;
 use hyper::{Body, Request, Response, Server, StatusCode};
 use imagedb::*;
+use log::{error, info, warn};
+use serde_derive::{Deserialize, Serialize};
 use serde_json::from_slice;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
-use crate::telegram_client::*;
 use tokio::runtime::Runtime;
-use serde_derive::{Serialize, Deserialize};
-use log::{info, warn, error};
 
 const STORAGE_DIR_NAME: &str = "storage";
 
@@ -130,10 +130,12 @@ fn handle_request(
     req.into_body().concat2().and_then(move |chunk| {
         from_slice::<Update>(chunk.as_ref())
             .into_future()
-            .map_err(|_| Response::builder()
-                .status(StatusCode::UNPROCESSABLE_ENTITY)
-                .body(Body::empty())
-                .expect("known safe response parameters"))
+            .map_err(|_| {
+                Response::builder()
+                    .status(StatusCode::UNPROCESSABLE_ENTITY)
+                    .body(Body::empty())
+                    .expect("known safe response parameters")
+            })
             .and_then(|update| {
                 let chat_id = update.message.chat.id;
                 let message_id = update.message.message_id;
@@ -153,43 +155,55 @@ fn handle_request(
                     })
             })
             .and_then(move |(user, file_id, chat_id, message_id)| {
-                telegram_client.get_file(&file_id)
+                telegram_client
+                    .get_file(&file_id)
                     .and_then(move |file| {
-                        info!("Checking file {:?} from {:?}. ChatId is {}. MessageId is {}", file, user, chat_id, message_id);
+                        info!(
+                            "Checking file {:?} from {:?}. ChatId is {}. MessageId is {}",
+                            file, user, chat_id, message_id
+                        );
 
                         if let Some((file_path, ext)) = get_file_path_if_processable(file.file_path) {
                             Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
-                                let image = Image::new(bytes.into_iter().collect(),
-                                                       ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id));
+                                let image = Image::new(
+                                    bytes.into_iter().collect(),
+                                    ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id),
+                                );
 
                                 let mut db = db.lock().unwrap();
 
                                 if let ImageVariant::AlreadyExists(metadata) = db.save_image_if_new(image) {
-                                    let details = user.username.map(|x| format!(" ({})", x)).unwrap_or_else(|| "".to_string());
+                                    let details = user
+                                        .username
+                                        .map(|x| format!(" ({})", x))
+                                        .unwrap_or_else(|| "".to_string());
                                     let text = format!(
                                         "Похоже, что [{}{}](tg://user?id={}) боян добавил.",
-                                        user.first_name,
-                                        details,
-                                        user.id
+                                        user.first_name, details, user.id
                                     );
-                                    Either::A(telegram_client.send_message(
-                                            chat_id,
-                                            &format!("{} Линк на оригинал выше.", text),
-                                            Some(metadata.message_id),
-                                        ).then(move |res| {
-                                            warn!("Failed to add reply, sending message without reply");
-                                            match res {
-                                                Ok(x) => Either::B(future::ok(x)),
-                                                Err(_) => Either::A(telegram_client.send_message(
-                                                    chat_id,
-                                                    &format!("{} Линка на оригинал не будет.", text),
-                                                    None,
-                                                ))
-                                            }
-                                        })
+                                    Either::A(
+                                        telegram_client
+                                            .send_message(
+                                                chat_id,
+                                                &format!("{} Линк на оригинал выше.", text),
+                                                Some(metadata.message_id),
+                                            )
+                                            .then(move |res| {
+                                                warn!("Failed to add reply, sending message without reply");
+                                                match res {
+                                                    Ok(x) => Either::B(future::ok(x)),
+                                                    Err(_) => Either::A(telegram_client.send_message(
+                                                        chat_id,
+                                                        &format!(
+                                                            "{} Линка на оригинал не будет.",
+                                                            text
+                                                        ),
+                                                        None,
+                                                    )),
+                                                }
+                                            }),
                                     )
-                                }
-                                else {
+                                } else {
                                     info!("New image! Congrats, user {}", user.first_name);
                                     Either::B(future::ok(()))
                                 }

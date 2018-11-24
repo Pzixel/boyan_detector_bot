@@ -1,5 +1,6 @@
-use bytes::Bytes;
 use crate::contract::*;
+use bytes::Bytes;
+use failure::Fail;
 use futures::Future;
 use futures::Stream;
 use hyper;
@@ -9,9 +10,8 @@ use hyper::{Body, Chunk, Client, Method, Request};
 use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 use serde_json::from_slice;
-use serde_json::Error as SerdeError;
 use serde_json::json;
-use failure::Fail;
+use serde_json::Error as SerdeError;
 
 #[derive(Debug, Fail)]
 /// Custom errors that may happen during calls
@@ -86,12 +86,14 @@ impl TelegramClient {
         self.send(method, url, body, |chunk| {
             let result = from_slice::<ApiResult<T>>(chunk.as_ref());
             match result {
-                Ok(api_result) => if api_result.ok {
-                    Ok(api_result.result)
-                } else {
-                    let text: String = String::from_utf8_lossy(chunk.as_ref()).into_owned();
-                    Err(TelegramClientError::ConnectionError(text))
-                },
+                Ok(api_result) => {
+                    if api_result.ok {
+                        Ok(api_result.result)
+                    } else {
+                        let text: String = String::from_utf8_lossy(chunk.as_ref()).into_owned();
+                        Err(TelegramClientError::ConnectionError(text))
+                    }
+                }
                 Err(e) => Err(TelegramClientError::SerdeError(e)),
             }
         })
