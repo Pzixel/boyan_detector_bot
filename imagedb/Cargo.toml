@@ -2,9 +2,9 @@
 name = "imagedb"
 version = "0.2.0"
 authors = ["Psilon <pzixel@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 serde = "1.0.80"
 serde_json = "1.0.33"
 cv = { git = "https://github.com/nebgnahz/cv-rs.git" }
-edition = "2018"
