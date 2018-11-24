@@ -1,22 +1,19 @@
-extern crate bytes;
-extern crate clap;
-extern crate futures;
-extern crate hyper;
-extern crate hyper_tls;
-extern crate log4rs;
+use hyper;
+
+use log4rs;
 #[macro_use]
 extern crate log;
 
 #[macro_use]
 extern crate serde_derive;
-extern crate serde;
+
 #[macro_use]
 extern crate serde_json;
 
 #[macro_use]
 extern crate failure;
-extern crate imagedb;
-extern crate tokio;
+
+
 
 mod contract;
 mod telegram_client;
