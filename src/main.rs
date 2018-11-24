@@ -86,7 +86,9 @@ fn main() {
 }
 
 fn run(bot_token: &str, listening_address: &str, external_address: &str) {
-    let addr: SocketAddr = listening_address.parse().unwrap();
+    let listening_address: SocketAddr = listening_address
+        .parse()
+        .expect(&format!("cannot parse listening address {}", listening_address));
     let telegram_client = TelegramClient::new(bot_token.into());
 
     let mut runtime = Runtime::new().unwrap();
@@ -109,7 +111,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let db = ImageDb::new(storage);
     let db = Arc::new(Mutex::new(db));
 
-    let server = Server::bind(&addr)
+    let server = Server::bind(&listening_address)
         .serve(move || {
             let telegram_client = telegram_client.clone();
             let db = db.clone();
@@ -118,7 +120,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
         })
         .map_err(|e| error!("server error: {}", e));
 
-    info!("Listening on http://{}", addr);
+    info!("Listening on http://{}", listening_address);
     rt::run(server);
 }
 
