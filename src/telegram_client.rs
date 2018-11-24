@@ -1,5 +1,5 @@
 use bytes::Bytes;
-use contract::*;
+use crate::contract::*;
 use futures::Future;
 use futures::Stream;
 use hyper;

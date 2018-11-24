@@ -22,7 +22,7 @@ mod contract;
 mod telegram_client;
 
 use clap::{App, Arg};
-use contract::Update;
+use crate::contract::Update;
 use futures::future;
 use futures::future::Either;
 use futures::IntoFuture;
@@ -34,7 +34,7 @@ use imagedb::*;
 use serde_json::from_slice;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
-use telegram_client::*;
+use crate::telegram_client::*;
 use tokio::runtime::Runtime;
 
 const STORAGE_DIR_NAME: &str = "storage";
