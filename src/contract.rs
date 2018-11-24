@@ -1,3 +1,5 @@
+use serde_derive::Deserialize;
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Chat {
     pub id: i64,

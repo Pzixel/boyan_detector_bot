@@ -1,5 +1,4 @@
-extern crate cv;
-extern crate imagedb;
+use imagedb;
 
 use imagedb::*;
 use std::fs;

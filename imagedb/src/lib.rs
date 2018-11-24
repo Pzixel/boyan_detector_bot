@@ -1,6 +1,5 @@
-extern crate cv;
-extern crate serde;
-extern crate serde_json;
+use serde;
+use serde_json;
 
 use cv::hash::*;
 use cv::imgcodecs::*;
