@@ -4,6 +4,6 @@ version = "0.2.0"
 authors = ["Psilon <pzixel@gmail.com>"]
 
 [dependencies]
-serde = "1.0.67"
-serde_json = "1.0.22"
-cv = { git = "https://github.com/nebgnahz/cv-rs.git", branch = "feature/multithreaded_hash" }
+serde = "1.0.80"
+serde_json = "1.0.33"
+cv = { git = "https://github.com/nebgnahz/cv-rs.git" }
