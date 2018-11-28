@@ -19,7 +19,9 @@ use imagedb::*;
 use log::{error, info, warn};
 use serde_derive::{Deserialize, Serialize};
 use serde_json::from_slice;
+use std::collections::HashMap;
 use std::net::SocketAddr;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 
@@ -48,9 +50,15 @@ impl Metadata for ImageMetadata {
     }
 }
 
+type Synced<T> = Arc<Mutex<T>>;
+type Storage = FileStorage<ImageMetadata>;
+type Db = ImageDb<ImageMetadata, Storage>;
+type SyncedDb = Synced<Db>;
+type DbTable = HashMap<i64, SyncedDb>;
+type SyncedDbMap = Synced<DbTable>;
+
 fn main() {
     log4rs::init_file("log4rs.toml", Default::default()).unwrap();
-    std::fs::create_dir_all(STORAGE_DIR_NAME).unwrap();
 
     let matches = App::new("BoyanDetectorBot")
         .arg(
@@ -107,16 +115,14 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     info!("Webhook has been set on {}", external_address);
 
     let telegram_client = Arc::new(telegram_client);
-    let storage = FileStorage::<ImageMetadata>::new(STORAGE_DIR_NAME.into());
-    let db = ImageDb::new(storage);
-    let db = Arc::new(Mutex::new(db));
+    let dbs = Arc::new(Mutex::new(HashMap::new()));
 
     let server = Server::bind(&listening_address)
         .serve(move || {
             let telegram_client = telegram_client.clone();
-            let db = db.clone();
+            let dbs = dbs.clone();
 
-            service_fn(move |x| handle_request(x, telegram_client.clone(), db.clone()))
+            service_fn(move |x| handle_request(x, telegram_client.clone(), dbs.clone()))
         })
         .map_err(|e| error!("server error: {}", e));
 
@@ -127,7 +133,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
 fn handle_request(
     req: Request<Body>,
     telegram_client: Arc<TelegramClient>,
-    db: Arc<Mutex<ImageDb<ImageMetadata, FileStorage<ImageMetadata>>>>,
+    dbs: SyncedDbMap,
 ) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
     req.into_body().concat2().and_then(move |chunk| {
         from_slice::<Update>(chunk.as_ref())
@@ -172,6 +178,20 @@ fn handle_request(
                                     ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id),
                                 );
 
+                                let db = {
+                                    let mut lock = dbs.lock().unwrap();
+                                    lock.entry(chat_id)
+                                        .or_insert_with(|| {
+                                            let path: PathBuf = STORAGE_DIR_NAME.into();
+                                            let path = path.join(chat_id.to_string());
+                                            std::fs::create_dir_all(&path).unwrap();
+                                            let storage = FileStorage::<ImageMetadata>::new(path);
+                                            let db = ImageDb::new(storage);
+                                            let db = Arc::new(Mutex::new(db));
+                                            db
+                                        })
+                                        .clone()
+                                };
                                 let mut db = db.lock().unwrap();
 
                                 if let ImageVariant::AlreadyExists(metadata) = db.save_image_if_new(image) {
