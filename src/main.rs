@@ -1,7 +1,3 @@
-use hyper;
-
-use log4rs;
-
 mod contract;
 mod telegram_client;
 
@@ -12,11 +8,13 @@ use futures::future;
 use futures::future::Either;
 use futures::IntoFuture;
 use futures::Stream;
+use hyper;
 use hyper::rt::{self, Future};
 use hyper::service::service_fn;
 use hyper::{Body, Request, Response, Server, StatusCode};
 use imagedb::*;
 use log::{error, info, warn};
+use log4rs;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::from_slice;
 use std::collections::HashMap;

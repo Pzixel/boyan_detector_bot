@@ -1,9 +1,8 @@
-use serde;
-use serde_json;
-
 use cv::hash::*;
 use cv::imgcodecs::*;
 use cv::*;
+use serde;
+use serde_json;
 use std::cmp::PartialEq;
 use std::fs;
 use std::fs::File;
