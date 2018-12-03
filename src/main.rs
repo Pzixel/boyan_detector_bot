@@ -21,8 +21,8 @@ use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use tokio::runtime::Runtime;
 use tokio::await;
+use tokio::runtime::Runtime;
 use tokio_async_await::compat::backward;
 
 const STORAGE_DIR_NAME: &str = "storage";
@@ -138,10 +138,7 @@ async fn handle_request(
     let result = await!(handle_request_internal(req, telegram_client, dbs));
     let response = match result {
         Ok(()) => Response::new(Body::empty()),
-        Err(status_code) => Response::builder()
-            .status(status_code)
-            .body(Body::empty())
-            .unwrap()
+        Err(status_code) => Response::builder().status(status_code).body(Body::empty()).unwrap(),
     };
     Ok(response)
 }
@@ -175,7 +172,7 @@ async fn handle_request_internal(
         _ => None,
     };
 
-    let (user, file_id) = try_get_result!(processing_info, "There is no sender or images. Skipping") ;
+    let (user, file_id) = try_get_result!(processing_info, "There is no sender or images. Skipping");
 
     let file = await!(telegram_client.get_file(file_id)).map_err(|_| StatusCode::GATEWAY_TIMEOUT)?;
     info!(
@@ -183,7 +180,10 @@ async fn handle_request_internal(
         file, user, chat_id, message_id
     );
 
-    let (file_path, ext) = try_get_result!(get_file_path_if_processable(file.file_path), "Unsupported extension. Skipping") ;
+    let (file_path, ext) = try_get_result!(
+        get_file_path_if_processable(file.file_path),
+        "Unsupported extension. Skipping"
+    );
     let bytes = await!(telegram_client.download_file(&file_path)).map_err(|_| StatusCode::GATEWAY_TIMEOUT)?;
     let image = Image::new(
         bytes.into_iter().collect(),
@@ -211,12 +211,13 @@ async fn handle_request_internal(
             ImageVariant::AlreadyExists(metadata) => metadata,
             ImageVariant::New => {
                 info!("New image! Congrats, user {}", user.first_name);
-                return Ok(())
+                return Ok(());
             }
         }
     };
 
-    let details = user.username
+    let details = user
+        .username
         .clone()
         .map(|x| format!(" ({})", x))
         .unwrap_or_else(|| "".to_string());
@@ -237,10 +238,7 @@ async fn handle_request_internal(
         warn!("Failed to add reply, sending message without reply");
         let send_message = telegram_client.send_message(
             chat_id,
-            &format!(
-                "{} Линка на оригинал не будет.",
-                text
-            ),
+            &format!("{} Линка на оригинал не будет.", text),
             None,
         );
         await!(send_message).map_err(|e| {
