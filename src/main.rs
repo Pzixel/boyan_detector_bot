@@ -7,9 +7,6 @@ mod telegram_client;
 use crate::contract::Update;
 use crate::telegram_client::*;
 use clap::{App, Arg};
-use futures::future;
-use futures::future::Either;
-use futures::IntoFuture;
 use futures::Stream;
 use hyper;
 use hyper::rt::{self, Future};
@@ -26,7 +23,6 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::await;
-use tokio::prelude::*;
 use tokio_async_await::compat::backward;
 
 const STORAGE_DIR_NAME: &str = "storage";
@@ -141,7 +137,7 @@ async fn handle_request(
 ) -> Result<Response<Body>, hyper::Error> {
     let result = await!(handle_request_internal(req, telegram_client, dbs));
     let response = match result {
-        Ok(x) => Response::new(Body::empty()),
+        Ok(()) => Response::new(Body::empty()),
         Err(status_code) => Response::builder()
             .status(status_code)
             .body(Body::empty())
@@ -193,27 +189,30 @@ async fn handle_request_internal(
         bytes.into_iter().collect(),
         ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id),
     );
-    let db = {
-        let mut lock = dbs.lock().unwrap();
-        lock.entry(chat_id)
-            .or_insert_with(|| {
-                let path: PathBuf = STORAGE_DIR_NAME.into();
-                let path = path.join(chat_id.to_string());
-                std::fs::create_dir_all(&path).unwrap();
-                let storage = FileStorage::<ImageMetadata>::new(path);
-                let db = ImageDb::new(storage);
-                let db = Arc::new(Mutex::new(db));
-                db
-            })
-            .clone()
-    };
-    let mut db = db.lock().unwrap();
 
-    let metadata = match db.save_image_if_new(image) {
-        ImageVariant::AlreadyExists(metadata) => metadata,
-        ImageVariant::New => {
-            info!("New image! Congrats, user {}", user.first_name);
-            return Ok(())
+    let metadata = {
+        let db = {
+            let mut lock = dbs.lock().unwrap();
+            lock.entry(chat_id)
+                .or_insert_with(|| {
+                    let path: PathBuf = STORAGE_DIR_NAME.into();
+                    let path = path.join(chat_id.to_string());
+                    std::fs::create_dir_all(&path).unwrap();
+                    let storage = FileStorage::<ImageMetadata>::new(path);
+                    let db = ImageDb::new(storage);
+                    let db = Arc::new(Mutex::new(db));
+                    db
+                })
+                .clone()
+        };
+        let mut db = db.lock().unwrap();
+
+        match db.save_image_if_new(image) {
+            ImageVariant::AlreadyExists(metadata) => metadata,
+            ImageVariant::New => {
+                info!("New image! Congrats, user {}", user.first_name);
+                return Ok(())
+            }
         }
     };
 
@@ -232,7 +231,23 @@ async fn handle_request_internal(
         Some(metadata.message_id),
     );
 
-    // let message = await!(send_message);
+    let message = await!(send_message);
+
+    if message.is_err() {
+        warn!("Failed to add reply, sending message without reply");
+        let send_message = telegram_client.send_message(
+            chat_id,
+            &format!(
+                "{} Линка на оригинал не будет.",
+                text
+            ),
+            None,
+        );
+        await!(send_message).map_err(|e| {
+            error!("Unknown exception while sending request: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    }
 
     Ok(())
 }
