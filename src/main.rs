@@ -35,7 +35,6 @@ macro_rules! try_get_result {
             return Ok(());
         }
     });
-    ($expr:expr,) => (try!($expr));
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
