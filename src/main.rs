@@ -27,6 +27,17 @@ use tokio_async_await::compat::backward;
 
 const STORAGE_DIR_NAME: &str = "storage";
 
+macro_rules! try_get_result {
+    ($expr:expr, $error_message:literal) => (match $expr {
+        Some(val) => val,
+        _ => {
+            info!($error_message);
+            return Ok(());
+        }
+    });
+    ($expr:expr,) => (try!($expr));
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct ImageMetadata {
     file_name: String,
@@ -141,17 +152,6 @@ async fn handle_request(
         Err(status_code) => Response::builder().status(status_code).body(Body::empty()).unwrap(),
     };
     Ok(response)
-}
-
-macro_rules! try_get_result {
-    ($expr:expr, $error_message:literal) => (match $expr {
-        Some(val) => val,
-        _ => {
-            info!($error_message);
-            return Ok(());
-        }
-    });
-    ($expr:expr,) => (try!($expr));
 }
 
 async fn handle_request_internal(
