@@ -17,8 +17,9 @@ log4rs = { version = "0.8.1", features = ["toml_format"] }
 serde = "1.0.80"
 serde_derive = "1.0.80"
 serde_json = "1.0.33"
-tokio = "0.1.13"
+tokio = { version = "0.1.13", features = ["async-await-preview"] }
 imagedb = { path = "imagedb" }
+tokio-async-await = "0.1.4"
 
 [profile.release]
 lto = true
