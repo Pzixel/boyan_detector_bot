@@ -105,6 +105,7 @@ fn main() {
 
 fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let listening_address: SocketAddr = listening_address
+        .replace("localhost", "127.0.0.1")
         .parse()
         .expect(&format!("cannot parse listening address {}", listening_address));
     let telegram_client = TelegramClient::new(bot_token.into());
@@ -145,6 +146,7 @@ async fn handle_request(
     telegram_client: Arc<TelegramClient>,
     dbs: SyncedDbMap,
 ) -> Result<Response<Body>, hyper::Error> {
+    info!("Got new request!");
     let result = await!(handle_request_internal(req, telegram_client, dbs));
     let response = match result {
         Ok(()) => Response::new(Body::empty()),
