@@ -1,12 +1,12 @@
+// enable the await! macro, async support, and the new std::Futures api.
+#![feature(await_macro, async_await, futures_api)]
+
 mod contract;
 mod telegram_client;
 
 use crate::contract::Update;
 use crate::telegram_client::*;
 use clap::{App, Arg};
-use futures::future;
-use futures::future::Either;
-use futures::IntoFuture;
 use futures::Stream;
 use hyper;
 use hyper::rt::{self, Future};
@@ -21,9 +21,21 @@ use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use tokio::await;
 use tokio::runtime::Runtime;
+use tokio_async_await::compat::backward;
 
 const STORAGE_DIR_NAME: &str = "storage";
+
+macro_rules! try_get_result {
+    ($expr:expr, $error_message:literal) => (match $expr {
+        Some(val) => val,
+        _ => {
+            info!($error_message);
+            return Ok(());
+        }
+    });
+}
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct ImageMetadata {
@@ -93,6 +105,7 @@ fn main() {
 
 fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     let listening_address: SocketAddr = listening_address
+        .replace("localhost", "127.0.0.1")
         .parse()
         .expect(&format!("cannot parse listening address {}", listening_address));
     let telegram_client = TelegramClient::new(bot_token.into());
@@ -120,7 +133,7 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
             let telegram_client = telegram_client.clone();
             let dbs = dbs.clone();
 
-            service_fn(move |x| handle_request(x, telegram_client.clone(), dbs.clone()))
+            service_fn(move |x| backward::Compat::new(handle_request(x, telegram_client.clone(), dbs.clone())))
         })
         .map_err(|e| error!("server error: {}", e));
 
@@ -128,126 +141,114 @@ fn run(bot_token: &str, listening_address: &str, external_address: &str) {
     rt::run(server);
 }
 
-fn handle_request(
+async fn handle_request(
     req: Request<Body>,
     telegram_client: Arc<TelegramClient>,
     dbs: SyncedDbMap,
-) -> impl Future<Item = Response<Body>, Error = hyper::Error> + Send {
-    req.into_body().concat2().and_then(move |chunk| {
-        from_slice::<Update>(chunk.as_ref())
-            .into_future()
-            .map_err(|_| {
-                Response::builder()
-                    .status(StatusCode::UNPROCESSABLE_ENTITY)
-                    .body(Body::empty())
-                    .expect("known safe response parameters")
-            })
-            .and_then(|update| {
-                let chat_id = update.message.chat.id;
-                let message_id = update.message.message_id;
-                let processing_info = match (&update.message.from, &update.message.document, &update.message.photo) {
-                    (Some(ref from), Some(ref document), _) => Some((from, &document.file_id)),
-                    (Some(ref from), _, Some(ref photo)) => photo
-                        .iter()
-                        .max_by_key(|x| x.file_size.unwrap_or(0))
-                        .map(|x| (from, &x.file_id)),
-                    _ => None,
-                };
-                processing_info
-                    .map(move |(user, file_id)| (user.clone(), file_id.clone(), chat_id, message_id))
-                    .ok_or_else(|| {
-                        info!("There is no sender or images. Skipping");
-                        Response::new(Body::empty())
-                    })
-            })
-            .and_then(move |(user, file_id, chat_id, message_id)| {
-                telegram_client
-                    .get_file(&file_id)
-                    .and_then(move |file| {
-                        info!(
-                            "Checking file {:?} from {:?}. ChatId is {}. MessageId is {}",
-                            file, user, chat_id, message_id
-                        );
+) -> Result<Response<Body>, hyper::Error> {
+    info!("Got new request!");
+    let result = await!(handle_request_internal(req, telegram_client, dbs));
+    let response = match result {
+        Ok(()) => Response::new(Body::empty()),
+        Err(status_code) => Response::builder().status(status_code).body(Body::empty()).unwrap(),
+    };
+    Ok(response)
+}
 
-                        if let Some((file_path, ext)) = get_file_path_if_processable(file.file_path) {
-                            Either::A(telegram_client.download_file(&file_path).and_then(move |bytes| {
-                                let image = Image::new(
-                                    bytes.into_iter().collect(),
-                                    ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id),
-                                );
+async fn handle_request_internal(
+    req: Request<Body>,
+    telegram_client: Arc<TelegramClient>,
+    dbs: SyncedDbMap,
+) -> Result<(), StatusCode> {
+    let chunk = await!(req.into_body().concat2()).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let update: Update = from_slice(chunk.as_ref()).map_err(|_| StatusCode::UNPROCESSABLE_ENTITY)?;
+    let chat_id = update.message.chat.id;
+    let message_id = update.message.message_id;
+    let processing_info = match (&update.message.from, &update.message.document, &update.message.photo) {
+        (Some(ref from), Some(ref document), _) => Some((from, &document.file_id)),
+        (Some(ref from), _, Some(ref photo)) => photo
+            .iter()
+            .max_by_key(|x| x.file_size.unwrap_or(0))
+            .map(|x| (from, &x.file_id)),
+        _ => None,
+    };
 
-                                let db = {
-                                    let mut lock = dbs.lock().unwrap();
-                                    lock.entry(chat_id)
-                                        .or_insert_with(|| {
-                                            let path: PathBuf = STORAGE_DIR_NAME.into();
-                                            let path = path.join(chat_id.to_string());
-                                            std::fs::create_dir_all(&path).unwrap();
-                                            let storage = FileStorage::<ImageMetadata>::new(path);
-                                            let db = ImageDb::new(storage);
-                                            let db = Arc::new(Mutex::new(db));
-                                            db
-                                        })
-                                        .clone()
-                                };
-                                let mut db = db.lock().unwrap();
+    let (user, file_id) = try_get_result!(processing_info, "There is no sender or images. Skipping");
 
-                                if let ImageVariant::AlreadyExists(metadata) = db.save_image_if_new(image) {
-                                    let details = user
-                                        .username
-                                        .map(|x| format!(" ({})", x))
-                                        .unwrap_or_else(|| "".to_string());
-                                    let text = format!(
-                                        "Похоже, что [{}{}](tg://user?id={}) боян добавил.",
-                                        user.first_name, details, user.id
-                                    );
-                                    Either::A(
-                                        telegram_client
-                                            .send_message(
-                                                chat_id,
-                                                &format!("{} Линк на оригинал выше.", text),
-                                                Some(metadata.message_id),
-                                            )
-                                            .then(move |res| {
-                                                warn!("Failed to add reply, sending message without reply");
-                                                match res {
-                                                    Ok(x) => Either::B(future::ok(x)),
-                                                    Err(_) => Either::A(telegram_client.send_message(
-                                                        chat_id,
-                                                        &format!(
-                                                            "{} Линка на оригинал не будет.",
-                                                            text
-                                                        ),
-                                                        None,
-                                                    )),
-                                                }
-                                            }),
-                                    )
-                                } else {
-                                    info!("New image! Congrats, user {}", user.first_name);
-                                    Either::B(future::ok(()))
-                                }
-                            }))
-                        } else {
-                            info!("Skipping unsupported extension");
-                            Either::B(future::ok(()))
-                        }
-                    })
-                    .map_err(|e| {
-                        error!("Error while processing: {}", e);
-                        Response::builder()
-                            .status(StatusCode::GATEWAY_TIMEOUT)
-                            .body(Body::empty())
-                            .expect("known safe response parameters")
-                    })
-            })
-            // ...and here we unify both paths
-            .map(|_| {
-                info!("Request has been processed successfully");
-                Response::new(Body::empty())
-            })
-            .or_else(Ok)
-    })
+    let file = await!(telegram_client.get_file(file_id)).map_err(|_| StatusCode::GATEWAY_TIMEOUT)?;
+    info!(
+        "Checking file {:?} from {:?}. ChatId is {}. MessageId is {}",
+        file, user, chat_id, message_id
+    );
+
+    let (file_path, ext) = try_get_result!(
+        get_file_path_if_processable(file.file_path),
+        "Unsupported extension. Skipping"
+    );
+    let bytes = await!(telegram_client.download_file(&file_path)).map_err(|_| StatusCode::GATEWAY_TIMEOUT)?;
+    let image = Image::new(
+        bytes.into_iter().collect(),
+        ImageMetadata::new(format!("{}.{}", file_id, ext), user.id, message_id),
+    );
+
+    let metadata = {
+        let db = {
+            let mut lock = dbs.lock().unwrap();
+            lock.entry(chat_id)
+                .or_insert_with(|| {
+                    let path: PathBuf = STORAGE_DIR_NAME.into();
+                    let path = path.join(chat_id.to_string());
+                    std::fs::create_dir_all(&path).unwrap();
+                    let storage = FileStorage::<ImageMetadata>::new(path);
+                    let db = ImageDb::new(storage);
+                    let db = Arc::new(Mutex::new(db));
+                    db
+                })
+                .clone()
+        };
+        let mut db = db.lock().unwrap();
+
+        match db.save_image_if_new(image) {
+            ImageVariant::AlreadyExists(metadata) => metadata,
+            ImageVariant::New => {
+                info!("New image! Congrats, user {}", user.first_name);
+                return Ok(());
+            }
+        }
+    };
+
+    let details = user
+        .username
+        .clone()
+        .map(|x| format!(" ({})", x))
+        .unwrap_or_else(|| "".to_string());
+    let text = format!(
+        "Похоже, что [{}{}](tg://user?id={}) боян добавил.",
+        &user.first_name, &details, &user.id
+    );
+
+    let send_message = telegram_client.send_message(
+        chat_id,
+        &format!("{} Линк на оригинал выше.", text),
+        Some(metadata.message_id),
+    );
+
+    let message = await!(send_message);
+
+    if message.is_err() {
+        warn!("Failed to add reply, sending message without reply");
+        let send_message = telegram_client.send_message(
+            chat_id,
+            &format!("{} Линка на оригинал не будет.", text),
+            None,
+        );
+        await!(send_message).map_err(|e| {
+            error!("Unknown exception while sending request: {:?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
+    }
+
+    Ok(())
 }
 
 fn get_file_path_if_processable(file_path: Option<String>) -> Option<(String, String)> {
